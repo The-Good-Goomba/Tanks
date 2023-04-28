@@ -210,7 +210,7 @@ class Main
 
         var loop = () =>
         {
-            SceneManager.doUpdate();
+            Scene.update();
             setTimeout( () =>{
                 requestAnimationFrame(loop);
             }, 1000 / this.frameRate)
@@ -218,6 +218,39 @@ class Main
         requestAnimationFrame(loop);
 
 
+    }
+
+    static DoUpdate()
+    {
+        const sampleCount = 1;
+        const newDepthTexture = Main.device.createTexture({
+            size: [Main.canvas.width, Main.canvas.height],
+            format: 'depth24plus',
+            sampleCount,
+            usage: GPUTextureUsage.RENDER_ATTACHMENT,
+        });
+        const commandEncoder = Main.device.createCommandEncoder();
+        const renderPassDescriptor = {
+            colorAttachments: [{
+                clearValue: Main.clearColour,
+                loadOp: 'clear',
+                storeOp: 'store',
+                view: Main.context.getCurrentTexture().createView()
+            }],
+            depthStencilAttachment: {
+                view: newDepthTexture.createView(),
+                depthClearValue: 1,
+                depthLoadOp: 'clear',
+                depthStoreOp: 'store',
+            },
+
+        };
+        const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+
+        Scene.render(passEncoder);
+
+        passEncoder.end();
+        Main.device.queue.submit([commandEncoder.finish()]);
     }
 
 }
@@ -268,69 +301,6 @@ class Mouse
     }
 }
 
-class SceneManager
-{
-    static _currentScene;
-
-    static Initialise(type)
-    {
-        SceneManager.setScene(type)
-    }
-
-    static get currentScene()
-    {
-        return SceneManager._currentScene
-    }
-
-    static setScene(type)
-    {
-        switch (type)
-        {
-            case SceneTypes.mainGame:
-                SceneManager._currentScene = new TankScene()
-        }
-    }
-
-    static doUpdate()
-    {
-
-        SceneManager._currentScene.update()
-
-
-        const sampleCount = 1;
-        const newDepthTexture = Main.device.createTexture({
-            size: [Main.canvas.width, Main.canvas.height],
-            format: 'depth24plus',
-            sampleCount,
-            usage: GPUTextureUsage.RENDER_ATTACHMENT,
-        });
-
-        const commandEncoder = Main.device.createCommandEncoder();
-        const renderPassDescriptor = {
-            colorAttachments: [{
-                clearValue: Main.clearColour,
-                loadOp: 'clear',
-                storeOp: 'store',
-                view: Main.context.getCurrentTexture().createView()
-            }],
-            depthStencilAttachment: {
-                view: newDepthTexture.createView(),
-                depthClearValue: 1,
-                depthLoadOp: 'clear',
-                depthStoreOp: 'store',
-            },
-
-        };
-        const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-
-        SceneManager._currentScene.render(passEncoder);
-
-        passEncoder.end();
-        Main.device.queue.submit([commandEncoder.finish()]);
-    }
-
-}
-
 class Engine
 {
     static #modelLibrary;
@@ -370,173 +340,56 @@ class Engine
 
 class Scene
 {
-    gameObjects = {};
-    projectionMatrix;
-    viewMatrix;
-    constructor(proj, view, children)
+    static gameObjects = {};
+    static projectionMatrix;
+    static viewMatrix;
+    Initialise(proj, view, children)
     {
-        this.projectionMatrix = proj;
-        this.viewMatrix = view;
+        Scene.projectionMatrix = proj;
+        Scene.viewMatrix = view;
         for (let child of children)
         {
-            this.addChild(child)
+            Scene.addChild(child)
         }
     }
 
-    update( children )
+    static update( children )
     {
         for (let child of children)
         {
-            if (this.gameObjects[child.id] === undefined) {
-                this.addChild(child)
-            } else { this.updateChild(child); }
+            if (Scene.gameObjects[child.id] === undefined) {
+                Scene.addChild(child)
+            } else { Scene.updateChild(child); }
 
         }
     }
-
-    render(renderEncoder) {
-        for (let child in this.gameObjects)
+    static render(renderEncoder) {
+        for (let child in Scene.gameObjects)
         {
-            child.doRender(renderEncoder,this.viewMatrix, this.projectionMatrix);
+            child.doRender(renderEncoder,Scene.viewMatrix, Scene.projectionMatrix);
         }
     }
-
-    updateChild(child)
+    static updateChild(child)
     {
         if (child.toDestroy) {
-            delete this.gameObjects[child.id];
+            delete Scene.gameObjects[child.id];
         } else if (child.dimensions === 1) {
-                this.gameObjects[child.id].modelMatrix = child.modelMatrix;
-                this.gameObjects[child.id].jointMatrices = child.jointMatrices ?? [mat4.create()];
+                Scene.gameObjects[child.id].modelMatrix = child.modelMatrix;
+                Scene.gameObjects[child.id].jointMatrices = child.jointMatrices ?? [mat4.create()];
         }
     }
-    addChild(child)
+    static addChild(child)
     {
         if (child.dimensions === 1) {
-            this.gameObjects[child.id] = new GameObject3D(child.id,child.model,child.sprite);
-            this.gameObjects[child.id].modelMatrix = child.modelMatrix;
-            this.gameObjects[child.id].jointMatrices = child.jointMatrices ?? [mat4.create()];
+            Scene.gameObjects[child.id] = new GameObject(child.id,child.model,child.sprite);
+            Scene.gameObjects[child.id].modelMatrix = child.modelMatrix;
+            Scene.gameObjects[child.id].jointMatrices = child.jointMatrices ?? [mat4.create()];
         }
     }
 
 }
 
-class GameObject2D
-{
-
-    #renderPipeline;
-    #sprite;
-    bindGroup;
-    sampler;
-
-    vertexUniformValues;
-    vertexUniformBuffer;
-
-    fragmentUniformValues;
-    fragmentUniformBuffer;
-
-    constructor(name, type, sprite)
-    {
-        this.#sprite = Engine.textureLibrary.getSprite(sprite);
-        this.#renderPipeline = Engine.shaderLibrary.createProgram(VertexShaderTypes.default,
-            FragmentShaderTypes.default, VertexDescriptorTypes.Basic);
-
-        this.mesh = Engine.modelLibrary.get(type);
-
-        for(var i = 0; i < this.mesh.groupCount; i++)
-        {
-            this.jointMatrices[i] = mat4.create();
-        }
-
-        this.sampler = Main.device.createSampler({
-            magFilter: 'nearest',
-            minFilter: 'nearest',
-        });
-
-        const bufferSize = (16 * 4 + 2 * 2 + 16 * this.mesh.groupCount)
-        this.vertexUniformBuffer = Main.device.createBuffer({
-            size: (bufferSize * 4 ),
-            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
-        });
-        this.vertexUniformValues = new Float32Array(bufferSize);
-        this.vertexUniformValues.set(this.modelMatrix, 0); // mModel
-        this.vertexUniformValues.set(this.normalMatrix, 16); // mModel
-        this.vertexUniformValues.set(this.viewMatrix, 32); // mView
-        this.vertexUniformValues.set(this.projectionMatrix, 48); // mProjection
-        this.vertexUniformValues.set(this.#sprite.pos, 64); // spritePos
-        this.vertexUniformValues.set(this.#sprite.size, 66); // spriteSize
-        this.vertexUniformValues.set(this.flattenedJointMatrices, 68); // jointMatrices Array
-
-        this.fragmentUniformBuffer = Main.device.createBuffer({
-            size: 32,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-        });
-        this.fragmentUniformValues = [];
-        this.fragmentUniformValues.push(...[0.0,10.0,0.0,0.0]); // LightPos
-        this.fragmentUniformValues.push(...[0.0,0.0,0.0]); // lightColour
-
-        Main.device.queue.writeBuffer(this.vertexUniformBuffer, 0, this.vertexUniformValues);
-        Main.device.queue.writeBuffer(this.fragmentUniformBuffer, 0, new Float32Array(this.fragmentUniformValues));
-        this.initBindGroups();
-
-    }
-
-    async initBindGroups()
-    {
-        let tex = await Engine.textureLibrary.getTexture(0);
-
-        this.bindGroup = Main.device.createBindGroup({
-            layout: this.#renderPipeline.getBindGroupLayout(0),
-            entries: [
-                { binding: 0, resource: { buffer: this.vertexUniformBuffer} },
-                { binding: 1, resource: { buffer: this.fragmentUniformBuffer} },
-                { binding: 2, resource: this.sampler },
-                { binding: 3, resource: tex.createView()},
-            ]
-        });
-    }
-
-    rebuildUniformBuffers(viewMatrix, projectionMatrix)
-    {
-        this.vertexUniformValues.set(this.modelMatrix, 0); // mModel
-        this.vertexUniformValues.set(this.normalMatrix, 16); // mModel
-        this.vertexUniformValues.set(viewMatrix, 32); // mView
-        this.vertexUniformValues.set(projectionMatrix, 48); // mProjection
-        this.vertexUniformValues.set(this.flattenedJointMatrices, 68); // jointMatrices Array
-
-        Main.device.queue.writeBuffer(this.vertexUniformBuffer, 0,this.vertexUniformValues);
-    }
-
-
-    doRender(renderCommandEncoder, viewMatrix, projectionMatrix) {
-        this.rebuildUniformBuffers(viewMatrix, projectionMatrix);
-
-        if (this.bindGroup == null) { return; }
-
-        renderCommandEncoder.setPipeline(this.#renderPipeline);
-
-        renderCommandEncoder.setVertexBuffer(0, this.mesh.positions);
-        renderCommandEncoder.setVertexBuffer(1, this.mesh.texCoords);
-        renderCommandEncoder.setVertexBuffer(2, this.mesh.normals);
-        renderCommandEncoder.setVertexBuffer(3, this.mesh.groups);
-
-        renderCommandEncoder.setBindGroup(0, this.bindGroup);
-
-        renderCommandEncoder.draw(this.mesh.vertexCount);
-    }
-
-    useBaseColourTexture(type)
-    {
-        if (type === SpriteTypes.none) {
-            return;
-        }
-        this.#sprite = Engine.textureLibrary.getSprite(type);
-
-    }
-
-}
-
-class GameObject3D
+class GameObject
 {
     modelMatrix = mat4.create();
     get normalMatrix()

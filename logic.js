@@ -149,7 +149,6 @@ const SceneTypes =
 class SceneManager
 {
     #currentScene;
-
     constructor(type)
     {
         this.setScene(type)
@@ -169,10 +168,7 @@ class SceneManager
         }
     }
 
-    doUpdate = ()=>
-    {
-        this.#currentScene.update()
-    }
+    doUpdate = ()=> { this.#currentScene.update() }
 
 }
 
@@ -185,9 +181,6 @@ class Apex
     #quaternion = quat.create();
 
     parentModelMatrix = mat4.create();
-
-    viewMatrix = mat4.create();
-    projectionMatrix = mat4.create();
 
     #modelMatrix = mat4.create();
 
@@ -248,18 +241,6 @@ class Apex
 
                 child.update()
             }
-        }
-    }
-
-    doRender(renderCommandEncoder) { }
-
-    render(renderCommandEncoder)
-    {
-        if (this.toRender) { this.doRender(renderCommandEncoder) }
-
-        for (let child of this.#children)
-        {
-            if (child instanceof Apex) { child.render(renderCommandEncoder) }
         }
     }
 
@@ -337,12 +318,8 @@ class Apex
 
 class Scene extends Apex
 {
-    constructor()
-    {
-        super();
-        mat4.identity(this.viewMatrix);
-        mat4.identity(this.projectionMatrix);
-    }
+    viewMatrix = mat4.create();
+    projectionMatrix = mat4.create();
 
     get dataToSend()
     {
@@ -353,7 +330,7 @@ class Scene extends Apex
 
         for (let child of this.children)
         {
-            if (child instanceof GameObject3D || child instanceof GameObject2D) {
+            if (child instanceof GameObject || child instanceof GameObject2D) {
                 data.children.append(child.getSendData);
             }
         }
@@ -362,35 +339,8 @@ class Scene extends Apex
 
 }
 
-class GameObject2D
-{
-    toDestroy =  false;
-    firstSend = true;
-    id;
-    spriteType;
 
-    constructor(id, sprite) {
-        this.id = id;
-        this.spriteType = sprite;
-    }
-
-    get getSendData()
-    {
-        let data = {};
-        data.id = this.id;
-        if (this.toDestroy) { data.toDestroy = true; return data;}
-        if (this.firstSend) {
-            data.sprite = this.spriteType;
-            this.firstSend = false;
-        }
-        data.dimensions = 0;
-        return data;
-    }
-
-
-}
-
-class GameObject3D extends Apex
+class GameObject extends Apex
 {
     id;
     spriteType;
@@ -528,7 +478,7 @@ class TankScene extends Scene
         this.collidables = [];
 
         this.tank1 = new ControllableTank(SpriteTypes.blueTank);
-        this.floor = new GameObject3D("Floor", ModelTypes.plane, SpriteTypes.woodenFloor);
+        this.floor = new GameObject("Floor", ModelTypes.plane, SpriteTypes.woodenFloor);
 
         mat4.lookAt(this.viewMatrix, [0, 45, 45], [0, 0, 0], Meth.normalise3([0,1,-1]));
         // mat4.perspective(this.projectionMatrix, 0.25, Main.canvas.width / Main.canvas.height, 0.1, 1000.0);
@@ -685,7 +635,7 @@ class Tank extends Apex
 
 }
 
-class TankBody extends GameObject3D
+class TankBody extends GameObject
 {
     dead = false;
     constructor(spriteType) {
@@ -750,7 +700,7 @@ class ControllableTank extends Tank
     }
 }
 
-class Bullet extends GameObject3D
+class Bullet extends GameObject
 {
     speed = 0.1;
     initialBounces = 5;
@@ -849,8 +799,7 @@ class Bullet extends GameObject3D
 
 }
 
-
-class Cork extends GameObject3D
+class Cork extends GameObject
 {
     #hp = 3;
     #toBreak = false;
@@ -866,7 +815,7 @@ class Cork extends GameObject3D
     }
 }
 
-class Hole extends GameObject3D
+class Hole extends GameObject
 {
     constructor(pos) {
         super("Hole", ModelTypes.plane, SpriteTypes.hole);
@@ -874,7 +823,7 @@ class Hole extends GameObject3D
     }
 }
 
-class Cross extends GameObject3D
+class Cross extends GameObject
 {
     constructor(pos) {
         super("Cross", ModelTypes.plane, SpriteTypes.whiteCross);
@@ -887,7 +836,7 @@ class StaticBlocks
 {
     static spruceBlock(pos)
     {
-        let block = new GameObject3D("Spruce Block", ModelTypes.block2x2, SpriteTypes.spruce)
+        let block = new GameObject("Spruce Block", ModelTypes.block2x2, SpriteTypes.spruce)
         block.setPosition(...pos);
         block.setUniformScale(0.5);
         return block
@@ -895,7 +844,7 @@ class StaticBlocks
 
     static oakBlock(pos)
     {
-        let block = new GameObject3D("Oak Block", ModelTypes.block2x2, SpriteTypes.oak)
+        let block = new GameObject("Oak Block", ModelTypes.block2x2, SpriteTypes.oak)
         block.setPosition(...pos);
         block.setUniformScale(0.5);
 
@@ -904,7 +853,7 @@ class StaticBlocks
 
     static balsaBlock(pos)
     {
-        let block = new GameObject3D("Balsa Block", ModelTypes.block2x2, SpriteTypes.balsa)
+        let block = new GameObject("Balsa Block", ModelTypes.block2x2, SpriteTypes.balsa)
         block.setPosition(...pos);
         block.setUniformScale(0.5);
         return block
@@ -912,35 +861,35 @@ class StaticBlocks
 
     static oakTriangleBlock(pos)
     {
-        let block = new GameObject3D("Oak Triangle Block", ModelTypes.triangle, SpriteTypes.oak)
+        let block = new GameObject("Oak Triangle Block", ModelTypes.triangle, SpriteTypes.oak)
         block.setPosition(...pos);
         return block
     }
 
     static balsaTriangleBlock(pos)
     {
-        let block = new GameObject3D("Triangle Block", ModelTypes.triangle, SpriteTypes.balsa)
+        let block = new GameObject("Triangle Block", ModelTypes.triangle, SpriteTypes.balsa)
         block.setPosition(...pos);
         return block
     }
 
     static oakHalfCylinder(pos)
     {
-        let block = new GameObject3D("Cylinder", ModelTypes.halfCylinder, SpriteTypes.oak)
+        let block = new GameObject("Cylinder", ModelTypes.halfCylinder, SpriteTypes.oak)
         block.setPosition(...pos);
         return block
     }
 
     static balsaHalfCylinder(pos)
     {
-        let block = new GameObject3D("Cylinder", ModelTypes.halfCylinder, SpriteTypes.balsa)
+        let block = new GameObject("Cylinder", ModelTypes.halfCylinder, SpriteTypes.balsa)
         block.setPosition(...pos);
         return block
     }
 
     static shortBlock(pos)
     {
-        let block = new GameObject3D("Short Block", ModelTypes.block2x1, SpriteTypes.oak)
+        let block = new GameObject("Short Block", ModelTypes.block2x1, SpriteTypes.oak)
         block.setPosition(...pos);
         block.setUniformScale(0.5);
         return block
@@ -948,28 +897,28 @@ class StaticBlocks
 
     static bigShortBalsa(pos)
     {
-        let block = new GameObject3D("Short Block", ModelTypes.block2x1, SpriteTypes.balsa)
+        let block = new GameObject("Short Block", ModelTypes.block2x1, SpriteTypes.balsa)
         block.setPosition(...pos);
         return block
     }
 
     static bigOakBlock(pos)
     {
-        let block = new GameObject3D("Big Oak Block", ModelTypes.block2x2, SpriteTypes.oak)
+        let block = new GameObject("Big Oak Block", ModelTypes.block2x2, SpriteTypes.oak)
         block.setPosition(...pos);
         return block
     }
 
     static bigBalsaBlock(pos)
     {
-        let block = new GameObject3D("Big Balsa Block", ModelTypes.block2x2, SpriteTypes.balsa)
+        let block = new GameObject("Big Balsa Block", ModelTypes.block2x2, SpriteTypes.balsa)
         block.setPosition(...pos);
         return block
     }
 
     static tallBalsaBlock(pos)
     {
-        let block = new GameObject3D("Tall Balsa Block", ModelTypes.block2x1, SpriteTypes.balsa)
+        let block = new GameObject("Tall Balsa Block", ModelTypes.block2x1, SpriteTypes.balsa)
         block.setPosition(...pos);
         block.rotate(Math.PI * 0.5,0,0);
         return block
@@ -977,7 +926,7 @@ class StaticBlocks
 
     static longBigBlock(pos)
     {
-        let block = new GameObject3D("Long Big Block", ModelTypes.block2x4, SpriteTypes.oak)
+        let block = new GameObject("Long Big Block", ModelTypes.block2x4, SpriteTypes.oak)
         block.setPosition(...pos);
         return block
     }

@@ -15,20 +15,38 @@ const server = http.createServer((request, response) => {
         let fileUrl;
         if (request.url === '/') fileUrl = '/index.html';
         else fileUrl = request.url;
-        let fileExt = fileUrl.split('.').pop();
 
         // MARK: Get game data
         if (!fileUrl.includes('.'))
         {
-            let gameID = Number(request.url.split('.').pop());
             response.setHeader('Content-Type', 'application/json');
+
+
+            let command = fileUrl.split('/')[1];
+            let argument = fileUrl.split('/')[2];
+            let data = {};
+            switch (command) {
+                case 'start':
+                    data.id = Math.trunc(Math.random() * 1000);
+                    response.end(JSON.stringify(data));
+                    break;
+                case 'initServer':
+                    data.serverId = Math.trunc(Math.random() * 1000);
+                    Main.gameInstances[data.serverId] = new SceneManager(SceneTypes.mainGame);
+                    Main.players[argument] = data.serverId; // That player is now linked to the new server;
+                    response.end(JSON.stringify(data));
+                    break;
+                case 'getGameData':
+                    response.end(Main.gameInstances[argument].currentScene().dataToSend);
+                    break;
+            }
 
 
             return;
         }
 
         // MARK: Get file data
-
+        let fileExt = fileUrl.split('.').pop();
         response.statusCode = 200;
         fileUrl = __dirname + fileUrl;
 
@@ -80,4 +98,10 @@ server.listen(port, hostname, () => {
 
 });
 
+class Main
+{
+    static gameInstances = {};
+    static players = {}
 
+
+}
