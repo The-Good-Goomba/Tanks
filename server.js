@@ -25,6 +25,7 @@ const server = http.createServer((request, response) => {
             let command = fileUrl.split('/')[1];
             let argument;
             let data = {};
+
             switch (command) {
                 case 'start':
                     data.id = Math.trunc(Math.random() * 1000);
@@ -108,6 +109,7 @@ const server = http.createServer((request, response) => {
 
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
+    game.Engine.Initialise();
 });
 
 class Main

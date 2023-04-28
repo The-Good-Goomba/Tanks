@@ -1,5 +1,6 @@
 const glMatrix = require("./src/gl-matrix");
 const { mat4 , vec3, quat } = glMatrix;
+const fs = require('fs/promises');
 
 class Meth
 {
@@ -105,6 +106,7 @@ class SceneManager
     constructor(type)
     {
         this.setScene(type)
+
     }
 
     currentScene = () =>
@@ -140,6 +142,97 @@ class Engine
 
     }
 
+}
+
+class ModelLibrary
+{
+    #library = [];
+
+    Initialise()
+    {
+        return new Promise(async (resolve, reject) => {
+            this.#library[ModelTypes.tank] = await ModelLoader.getDataFromObj("/src/Assets/tankP.obj");
+            this.#library[ModelTypes.plane] = await ModelLoader.getDataFromObj("/src/Assets/plane.obj");
+            this.#library[ModelTypes.shell] = await ModelLoader.getDataFromObj("/src/Assets/shell.obj");
+            this.#library[ModelTypes.block2x2] = await ModelLoader.getDataFromObj("/src/Assets/block.obj");
+            this.#library[ModelTypes.block2x1] = await ModelLoader.getDataFromObj("/src/Assets/shortBlock.obj");
+            this.#library[ModelTypes.triangle] = await ModelLoader.getDataFromObj("/src/Assets/triangularPrism.obj");
+            this.#library[ModelTypes.halfCylinder] = await ModelLoader.getDataFromObj("/src/Assets/halfCylinder.obj");
+            this.#library[ModelTypes.block2x4] = await ModelLoader.getDataFromObj("/src/Assets/longBigBlock.obj");
+            resolve();
+        });
+    }
+
+    get(type)
+    {
+        return this.#library[type]
+    }
+
+}
+
+class ModelLoader
+{
+    static async getDataFromObj(url)
+    {
+        const fileContents = await ModelLoader.#getFileContents(url);
+        const mesh = ModelLoader.#parseFile(fileContents);
+        return mesh;
+    }
+
+    static #getFileContents = async (filename) =>
+    {
+        return await fs.readFile(__dirname + filename, {encoding: 'utf8'});
+    };
+
+    static #stringsToNumbers = (strings) =>
+    {
+        const numbers = [];
+        for (const str of strings)
+        {
+            numbers.push(parseFloat(str));
+        }
+        return numbers;
+    }
+
+    static #parseFile = (fileContents) =>
+    {
+
+        let boundingBox = new BoundingBox (
+            [Infinity, Infinity, Infinity],
+            [-Infinity, -Infinity, -Infinity]
+        )
+
+        const lines = fileContents.split('\n');
+        let pos = [0,0,0];
+
+        let meshMember = [];
+        let currentMember = 0;
+        let groupCount = 0;
+
+        for(const line of lines)
+        {
+            const [ command, ...values] = line.split(' ', 4);
+
+            if (command === 'g')
+            {
+                var bruh = true;
+                for (let i = 0;i < meshMember.length; i++)
+                {
+                    if ( values[0] === meshMember[i]) { currentMember = i; bruh = false }
+                }
+                if (bruh) { currentMember = meshMember.length; meshMember.push(values[0]);}
+                if (currentMember > groupCount) { groupCount = currentMember }
+            }
+
+            if (command === 'v')
+            {
+                pos = ModelLoader.#stringsToNumbers(values);
+                boundingBox.updateDefaultBounds(pos);
+            }
+        }
+        return { groupCount: (groupCount + 1),
+                boundingBox: boundingBox };
+    }
 }
 
 class Apex
@@ -308,7 +401,6 @@ class Scene extends Apex
     }
 
 }
-
 
 class GameObject extends Apex
 {
@@ -910,4 +1002,4 @@ class StaticBlocks
 
 }
 
-module.exports = {SceneManager, SceneTypes};
+module.exports = {SceneManager, SceneTypes, Engine};
