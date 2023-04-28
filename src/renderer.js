@@ -161,6 +161,7 @@ class Main
     static wiggleRoom = 0.001;
     static #frameRate = 60;
     static colourFormat;
+    static playerID;
 
     static get frameRate()
     {
@@ -199,7 +200,13 @@ class Main
         Mouse.Initialise();
 
         await Engine.Initialise();
-        SceneManager.Initialise(SceneTypes.mainGame);
+
+        let data = await ResourceLoader.loadJSONResource('/start');
+        console.log(data)
+        Main.playerID = data.id;
+        data = await ResourceLoader.loadJSONResource(`/initServer/${Main.playerID}`);
+
+        Scene.Initialise(data.projectionMatrix, data.viewMatrix, data.children);
         this.RunApp();
 
     };
@@ -207,21 +214,21 @@ class Main
     static RunApp()
     {
 
-
-        var loop = () =>
+        let loop = () =>
         {
-            Scene.update();
+            Main.DoUpdate();
             setTimeout( () =>{
                 requestAnimationFrame(loop);
             }, 1000 / this.frameRate)
         }
         requestAnimationFrame(loop);
 
-
     }
 
     static DoUpdate()
     {
+        Scene.update()
+
         const sampleCount = 1;
         const newDepthTexture = Main.device.createTexture({
             size: [Main.canvas.width, Main.canvas.height],
@@ -589,11 +596,6 @@ class ModelLoader
         const finalMembers = [];
 
 
-        var boundingBox = new BoundingBox (
-            [Infinity, Infinity, Infinity],
-            [-Infinity, -Infinity, -Infinity]
-        )
-
         const lines = fileContents.split('\n');
         var pos = [0,0,0];
         var meshMember = [];
@@ -617,7 +619,6 @@ class ModelLoader
             if (command === 'v')
             {
                 pos = ModelLoader.#stringsToNumbers(values);
-                boundingBox.updateDefaultBounds(pos);
                 positions.push(pos);
             }
             else if (command === 'vt')
@@ -650,11 +651,8 @@ class ModelLoader
             texCoords: Engine.makeBuffer(new Float32Array(finalTexCoords)),
             groups: Engine.makeBuffer(new Uint32Array(finalMembers)),
             groupCount: (groupCount + 1),
-            vertexCount: finalPositions.length / 3,
-            boundingBox: boundingBox };
+            vertexCount: finalPositions.length / 3};
     }
-
-
 
 }
 

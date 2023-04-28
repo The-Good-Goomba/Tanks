@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const os = require('os');
+const game = require('./logic');
 
 // const hostname = os.networkInterfaces().en0[1].address;
 const hostname = '127.0.0.1';
@@ -21,9 +22,8 @@ const server = http.createServer((request, response) => {
         {
             response.setHeader('Content-Type', 'application/json');
 
-
             let command = fileUrl.split('/')[1];
-            let argument = fileUrl.split('/')[2];
+            let argument;
             let data = {};
             switch (command) {
                 case 'start':
@@ -31,12 +31,26 @@ const server = http.createServer((request, response) => {
                     response.end(JSON.stringify(data));
                     break;
                 case 'initServer':
-                    data.serverId = Math.trunc(Math.random() * 1000);
-                    Main.gameInstances[data.serverId] = new SceneManager(SceneTypes.mainGame);
-                    Main.players[argument] = data.serverId; // That player is now linked to the new server;
-                    response.end(JSON.stringify(data));
+                    let serverId = Math.trunc(Math.random() * 1000);
+                    Main.gameInstances[serverId] = new game.SceneManager(game.SceneTypes.mainGame);
+                    argument = fileUrl.split('/')[2];
+                    Main.players[argument] = serverId; // That player is now linked to the new server;
+                    data = Main.gameInstances[serverId].currentScene().dataToSend;
+                    response.end(data);
+                    break;
+                case 'joinServer':
+                    let sID = argument = fileUrl.split('/')[2];
+                    let pID = argument = fileUrl.split('/')[3];
+                    response.setHeader('Content-Type', 'text/html');
+                    if (Main.gameInstances[sID] === undefined) {
+                        response.end('Not the right server');
+                    } else {
+                        Main.players[pID] = sID;
+                        response.end('Successfully connected');
+                    }
                     break;
                 case 'getGameData':
+                    argument = fileUrl.split('/')[2];
                     response.end(Main.gameInstances[argument].currentScene().dataToSend);
                     break;
             }
@@ -94,14 +108,10 @@ const server = http.createServer((request, response) => {
 
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
-
-
 });
 
 class Main
 {
     static gameInstances = {};
     static players = {}
-
-
 }

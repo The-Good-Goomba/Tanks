@@ -1,5 +1,6 @@
-const glMatrix = require("/src/gl-matrix");
+const glMatrix = require("./src/gl-matrix");
 const { mat4 , vec3, quat } = glMatrix;
+
 class Meth
 {
     static normalise3 = ( v ) =>
@@ -91,54 +92,6 @@ const ModelTypes =
         block2x4: i++,
     }
 
-const VertexShaderTypes = {
-    default: 'vertex_main'
-}
-
-const VertexDescriptorTypes = {
-    Basic: [{
-        attributes: [{
-            shaderLocation: 0, // position
-            offset: 0,
-            format: 'float32x3'
-        }],
-        arrayStride: 12,
-        stepMode: 'vertex'
-    },
-        {
-            attributes: [{
-                shaderLocation: 1, // texCoords
-                offset: 0,
-                format: 'float32x2'
-            }],
-            arrayStride: 8,
-            stepMode: 'vertex'
-        },
-        {
-            attributes: [{
-                shaderLocation: 2, // normal
-                offset: 0,
-                format: 'float32x3'
-            }],
-            arrayStride: 12,
-            stepMode: 'vertex'
-        },
-        {
-            attributes: [{
-                shaderLocation: 3, // meshMemeber
-                offset: 0,
-                format: 'uint32'
-            }],
-            arrayStride: 4,
-            stepMode: 'vertex'
-        }]
-
-}
-
-const FragmentShaderTypes = {
-    default: 'fragment_main'
-}
-
 i = 0
 const SceneTypes =
 {
@@ -169,6 +122,23 @@ class SceneManager
     }
 
     doUpdate = ()=> { this.#currentScene.update() }
+
+}
+
+class Engine
+{
+    static #modelLibrary;
+    static get modelLibrary(){ return this.#modelLibrary }
+
+    static async Initialise()
+    {
+        return new Promise(async (resolve, reject) => {
+            Engine.#modelLibrary = new ModelLibrary();
+            await Engine.#modelLibrary.Initialise();
+            resolve();
+        });
+
+    }
 
 }
 
@@ -940,4 +910,4 @@ class StaticBlocks
 
 }
 
-
+module.exports = {SceneManager, SceneTypes};
