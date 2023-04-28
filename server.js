@@ -2,24 +2,37 @@ const http = require('http');
 const fs = require('fs');
 const os = require('os');
 
-const hostname = os.networkInterfaces().en0[1].address;
-// const hostname = '127.0.0.1';
+// const hostname = os.networkInterfaces().en0[1].address;
+const hostname = '127.0.0.1';
 const port = 3000;
 
 const server = http.createServer((request, response) => {
     console.log('Request for ' + request.url + ' by method ' + request.method);
 
-    if (request.method == 'GET')
+    if (request.method === 'GET')
     {
+
         let fileUrl;
-        if (request.url == '/') fileUrl = '/index.html';
+        if (request.url === '/') fileUrl = '/index.html';
         else fileUrl = request.url;
         let fileExt = fileUrl.split('.').pop();
+
+        // MARK: Get game data
+        if (!fileUrl.includes('.'))
+        {
+            let gameID = Number(request.url.split('.').pop());
+            response.setHeader('Content-Type', 'application/json');
+
+
+            return;
+        }
+
+        // MARK: Get file data
 
         response.statusCode = 200;
         fileUrl = __dirname + fileUrl;
 
-        if (fileExt == 'html') {
+        if (fileExt === 'html') {
             fs.exists(fileUrl, (exists) => {
                 if (!exists) {
                     response.statusCode = 404;
@@ -32,22 +45,22 @@ const server = http.createServer((request, response) => {
                 }
             });
         }
-        else if (fileExt == 'css') {
+        else if (fileExt === 'css') {
             response.setHeader('Content-Type', 'text/css');
             fs.createReadStream(fileUrl).pipe(response);
-        } else if (fileExt == 'js') {
+        } else if (fileExt === 'js') {
             response.setHeader('Content-Type', 'text/javascript');
             fs.createReadStream(fileUrl).pipe(response);
-        } else if (fileExt == 'png') {
+        } else if (fileExt === 'png') {
             response.setHeader('Content-Type', 'image/png');
             fs.createReadStream(fileUrl).pipe(response);
-        } else if (fileExt == 'obj') {
+        } else if (fileExt === 'obj') {
             response.setHeader('Content-Type', 'text/plain');
             fs.createReadStream(fileUrl).pipe(response);
-        } else if (fileExt == 'wgsl') {
+        } else if (fileExt === 'wgsl') {
             response.setHeader('Content-Type', 'text/plain');
             fs.createReadStream(fileUrl).pipe(response);
-        } else if (fileExt == 'json') {
+        } else if (fileExt === 'json') {
             response.setHeader('Content-Type', 'application/json');
             fs.createReadStream(fileUrl).pipe(response);
         }
@@ -63,5 +76,8 @@ const server = http.createServer((request, response) => {
 
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
+
+
 });
+
 

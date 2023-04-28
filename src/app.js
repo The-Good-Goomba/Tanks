@@ -144,7 +144,6 @@ const SceneTypes =
     titleScene: i++,
     mainGame: i++
 }
-
 const start = () =>
 {
     Main.InitApp();
