@@ -402,8 +402,8 @@ class Scene extends Apex
 
         for (let child of this.children)
         {
-            if (child instanceof GameObject || child instanceof GameObject2D) {
-                data.children.append(child.getSendData);
+            if (child instanceof GameObject) {
+                data.children.push(child.getSendData);
             }
         }
         return JSON.stringify(data);
@@ -1006,8 +1006,7 @@ class StaticBlocks
 
     static async getLayout(filename)
     {
-        const file = await fetch(filename);
-        const body = await file.text();
+        const body = await fs.readFile(__dirname + filename, {encoding: 'utf8'});
         return JSON.parse(body);
     }
 

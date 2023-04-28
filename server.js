@@ -122,4 +122,4 @@ class Main
     static players = {}
 }
 
-module.exports = {Main}
+module.exports = { Main }
