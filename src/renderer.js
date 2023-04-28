@@ -205,6 +205,7 @@ class Main
         console.log(data)
         Main.playerID = data.id;
         data = await ResourceLoader.loadJSONResource(`/initServer/${Main.playerID}`);
+        console.log(data);
 
         Scene.Initialise(data.projectionMatrix, data.viewMatrix, data.children);
         this.RunApp();
@@ -225,9 +226,12 @@ class Main
 
     }
 
-    static DoUpdate()
+    static async DoUpdate()
     {
-        Scene.update()
+        let data = await ResourceLoader.loadJSONResource(`/getGameData/${Main.playerID}`);
+        Scene.viewMatrix = data.viewMatrix;
+        Scene.projectionMatrix = data.projectionMatrix;
+        Scene.update(data.children)
 
         const sampleCount = 1;
         const newDepthTexture = Main.device.createTexture({
@@ -350,7 +354,7 @@ class Scene
     static gameObjects = {};
     static projectionMatrix;
     static viewMatrix;
-    Initialise(proj, view, children)
+    static Initialise(proj, view, children)
     {
         Scene.projectionMatrix = proj;
         Scene.viewMatrix = view;
@@ -475,13 +479,13 @@ class GameObject
             usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
         });
         this.vertexUniformValues = new Float32Array(bufferSize);
-        this.vertexUniformValues.set(this.modelMatrix, 0); // mModel
-        this.vertexUniformValues.set(this.normalMatrix, 16); // mModel
-        this.vertexUniformValues.set(this.viewMatrix, 32); // mView
-        this.vertexUniformValues.set(this.projectionMatrix, 48); // mProjection
+        // this.vertexUniformValues.set(this.modelMatrix, 0); // mModel
+        // this.vertexUniformValues.set(this.normalMatrix, 16); // mModel
+        // this.vertexUniformValues.set(this.viewMatrix, 32); // mView
+        // this.vertexUniformValues.set(this.projectionMatrix, 48); // mProjection
         this.vertexUniformValues.set(this.#sprite.pos, 64); // spritePos
         this.vertexUniformValues.set(this.#sprite.size, 66); // spriteSize
-        this.vertexUniformValues.set(this.flattenedJointMatrices, 68); // jointMatrices Array
+        // this.vertexUniformValues.set(this.flattenedJointMatrices, 68); // jointMatrices Array
 
         this.fragmentUniformBuffer = Main.device.createBuffer({
             size: 32,
