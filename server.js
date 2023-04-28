@@ -52,6 +52,8 @@ const server = http.createServer((request, response) => {
                     break;
                 case 'getGameData':
                     argument = fileUrl.split('/')[2];
+                    console.log(argument);
+                    console.log(Main.players);
                     response.end(Main.gameInstances[Main.players[argument].serverId].currentScene().dataToSend);
                     break;
             }

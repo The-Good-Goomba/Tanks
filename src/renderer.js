@@ -394,9 +394,9 @@ class Scene
 
     }
     static render(renderEncoder) {
-        for (let child in Scene.gameObjects)
+        for (let childName in Scene.gameObjects)
         {
-            child.doRender(renderEncoder,Scene.viewMatrix, Scene.projectionMatrix);
+            Scene.gameObjects[childName].doRender(renderEncoder,Scene.viewMatrix, Scene.projectionMatrix);
         }
     }
     static updateChild(child)
@@ -405,7 +405,7 @@ class Scene
             delete Scene.gameObjects[child.id];
         } else if (child.dimensions === 1) {
                 Scene.gameObjects[child.id].modelMatrix = child.modelMatrix;
-                Scene.gameObjects[child.id].jointMatrices = child.jointMatrices ?? [mat4.create()];
+                Scene.gameObjects[child.id].jointMatrices = child.jointMatrices ?? mat4.create();
         }
     }
     static addChild(child)
@@ -413,7 +413,7 @@ class Scene
         if (child.dimensions === 1) {
             Scene.gameObjects[child.id] = new GameObject(child.id,child.model,child.sprite);
             Scene.gameObjects[child.id].modelMatrix = child.modelMatrix;
-            Scene.gameObjects[child.id].jointMatrices = child.jointMatrices ?? [mat4.create()];
+            Scene.gameObjects[child.id].jointMatrices = child.jointMatrices ?? mat4.create();
         }
     }
 
@@ -430,18 +430,7 @@ class GameObject
         return ret;
     }
 
-    jointMatrices = []
-    get flattenedJointMatrices()
-    {
-        let flattenedArray = new Float32Array(this.jointMatrices.length * 16);
-        let offset = 0;
-
-        for (let arr of this.jointMatrices) {
-            flattenedArray.set(arr, offset);
-            offset += arr.length;
-        }
-        return (flattenedArray);
-    }
+    jointMatrices;
 
     #renderPipeline;
     #sprite;
@@ -463,10 +452,6 @@ class GameObject
 
         this.mesh = Engine.modelLibrary.get(type);
 
-        for(var i = 0; i < this.mesh.groupCount; i++)
-        {
-            this.jointMatrices[i] = mat4.create();
-        }
 
         this.sampler = Main.device.createSampler({
             magFilter: 'nearest',
@@ -522,7 +507,7 @@ class GameObject
         this.vertexUniformValues.set(this.normalMatrix, 16); // mModel
         this.vertexUniformValues.set(viewMatrix, 32); // mView
         this.vertexUniformValues.set(projectionMatrix, 48); // mProjection
-        this.vertexUniformValues.set(this.flattenedJointMatrices, 68); // jointMatrices Array
+        this.vertexUniformValues.set(this.jointMatrices, 68); // jointMatrices Array
 
         Main.device.queue.writeBuffer(this.vertexUniformBuffer, 0,this.vertexUniformValues);
     }
