@@ -35,7 +35,7 @@ const server = http.createServer((request, response) => {
                     let serverId = Math.trunc(Math.random() * 1000);
                     Main.gameInstances[serverId] = new game.SceneManager(game.SceneTypes.mainGame);
                     argument = fileUrl.split('/')[2];
-                    Main.players[argument] = serverId; // That player is now linked to the new server;
+                    Main.players[argument] = {serverId: serverId}; // That player is now linked to the new server;
                     data = Main.gameInstances[serverId].currentScene().dataToSend;
                     response.end(data);
                     break;
@@ -46,7 +46,7 @@ const server = http.createServer((request, response) => {
                     if (Main.gameInstances[sID] === undefined) {
                         response.end('Not the right server');
                     } else {
-                        Main.players[pID] = sID;
+                        Main.players[pID] = {serverId: sID};
                         response.end('Successfully connected');
                     }
                     break;
@@ -55,7 +55,6 @@ const server = http.createServer((request, response) => {
                     response.end(Main.gameInstances[argument].currentScene().dataToSend);
                     break;
             }
-
 
             return;
         }
@@ -105,6 +104,11 @@ const server = http.createServer((request, response) => {
 
     }
 
+    if (request.method === 'POST')
+    {
+
+    }
+
 });
 
 server.listen(port, hostname, () => {
@@ -117,3 +121,5 @@ class Main
     static gameInstances = {};
     static players = {}
 }
+
+module.exports = {Main}

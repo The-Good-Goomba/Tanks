@@ -1,6 +1,7 @@
 const glMatrix = require("./src/gl-matrix");
 const { mat4 , vec3, quat } = glMatrix;
 const fs = require('fs/promises');
+const server = require('./server');
 
 class Meth
 {
@@ -103,10 +104,15 @@ const SceneTypes =
 class SceneManager
 {
     #currentScene;
-    constructor(type)
+    sceneID;
+
+    players = [];
+
+    constructor(type, id)
     {
         this.setScene(type)
-
+        this.sceneID = id;
+        this.#currentScene.sceneID = id;
     }
 
     currentScene = () =>
@@ -114,12 +120,18 @@ class SceneManager
         return this.#currentScene
     }
 
+   addPlayer(id)
+   {
+       this.players.push(id);
+       this.#currentScene.addPlayer(id);
+   }
+
     setScene = (type) =>
     {
         switch (type)
         {
             case SceneTypes.mainGame:
-                this.#currentScene = new TankScene()
+                this.#currentScene = new TankScene(this.sceneID)
         }
     }
 
@@ -134,12 +146,8 @@ class Engine
 
     static async Initialise()
     {
-        return new Promise(async (resolve, reject) => {
-            Engine.#modelLibrary = new ModelLibrary();
-            await Engine.#modelLibrary.Initialise();
-            resolve();
-        });
-
+        Engine.#modelLibrary = new ModelLibrary();
+        await Engine.#modelLibrary.Initialise();
     }
 
 }
@@ -237,6 +245,9 @@ class ModelLoader
 
 class Apex
 {
+    viewMatrix = mat4.create();
+    projectionMatrix = mat4.create();
+    serverID;
 
     #rotation = [0,0,0];
     #position = [0,0,0];
@@ -298,10 +309,10 @@ class Apex
         for (let child of this.#children)
         {
             if (child instanceof Apex) {
-                child.parentModelMatrix = this.#modelMatrix
-                child.viewMatrix = this.viewMatrix
-                child.projectionMatrix = this.projectionMatrix
-
+                child.parentModelMatrix = this.#modelMatrix;
+                child.viewMatrix = this.viewMatrix;
+                child.projectionMatrix = this.projectionMatrix;
+                child.serverID = this.serverID;
                 child.update()
             }
         }
@@ -381,9 +392,7 @@ class Apex
 
 class Scene extends Apex
 {
-    viewMatrix = mat4.create();
-    projectionMatrix = mat4.create();
-
+    players = []
     get dataToSend()
     {
         let data = {}
@@ -400,6 +409,7 @@ class Scene extends Apex
         return JSON.stringify(data);
     }
 
+    addPlayer(player) { player.push(player); }
 }
 
 class GameObject extends Apex
@@ -532,21 +542,22 @@ class BoundingBox {
 class TankScene extends Scene
 {
     collidables;
-    tank1;
+    tanks = [];
     floor;
     constructor() {
         super();
-
         this.collidables = [];
 
-        this.tank1 = new ControllableTank(SpriteTypes.blueTank);
+        this.tanks[0] = new ControllableTank(SpriteTypes.blueTank);
+        this.tanks[0].id = this.players[0];
+
         this.floor = new GameObject("Floor", ModelTypes.plane, SpriteTypes.woodenFloor);
 
         mat4.lookAt(this.viewMatrix, [0, 45, 45], [0, 0, 0], Meth.normalise3([0,1,-1]));
         // mat4.perspective(this.projectionMatrix, 0.25, Main.canvas.width / Main.canvas.height, 0.1, 1000.0);
         mat4.ortho(this.projectionMatrix, -16 * 0.82, 16 * 0.82, -9 * 0.82, 9 * 0.82, 0.1, 100.0);
 
-        this.tank1.tankBody.setUniformScale(5);
+        this.tanks[0].tankBody.setUniformScale(5);
         this.floor.setUniformScale(10);
         this.floor.scaleF(5,0,1);
         this.floor.setPosition(0,0,0);
@@ -578,9 +589,9 @@ class TankScene extends Scene
             }
         });
 
-        this.addChild(this.tank1);
+        this.addChild(this.tanks[0]);
         this.addChild(this.floor);
-        this.tank1.setCollidables(this.collidables);
+        this.tanks[0].setCollidables(this.collidables);
     }
 
 }
@@ -720,12 +731,12 @@ class ControllableTank extends Tank
     {
         super(spriteType);
         this.tankBody.afterTranslation = () => {
-            var bruh1 = mat4.create();
+            let bruh1 = mat4.create();
             mat4.mul(bruh1, this.projectionMatrix, this.viewMatrix);
 
             vec3.transformMat4(this.screenCoords, this.tankBody.getPosition(), bruh1);
-            this.screenCoords[0] = ((this.screenCoords[0] + 1) / 2) * Main.canvas.width;
-            this.screenCoords[1] = -1 * ((this.screenCoords[1] - 1) / 2) * Main.canvas.height;
+            this.screenCoords[0] = ((this.screenCoords[0] + 1) / 2);
+            this.screenCoords[1] = -1 * ((this.screenCoords[1] - 1) / 2);
         }
 
         this.tankBody.afterTranslation();
@@ -736,7 +747,7 @@ class ControllableTank extends Tank
 
         if (this.tankBody instanceof TankBody) {
             this.updateTurretRotation();
-            if (Mouse.isMouseButtonDown(0) && this.bulletTimer <= 0) {
+            if (server.Main.players[id].input.leftMouse && this.bulletTimer <= 0) {
                 this.bulletTimer = this.bulletInterval;
                 this.shoot();
             }
@@ -749,13 +760,13 @@ class ControllableTank extends Tank
     }
 
     shoot() {
-        let dir = Meth.normalise2([(Mouse.mousePos[0] - this.screenCoords[0]), (Mouse.mousePos[1] - this.screenCoords[1])]);
+        let dir = Meth.normalise2([(server.Main.players[id].input.mousePos[0] - this.screenCoords[0]), (server.Main.players[id].input.mousePos[1] - this.screenCoords[1])]);
         super.shoot(dir);
     }
 
     updateTurretRotation()
     {
-        let rot = Math.atan2((Mouse.mousePos[1] - this.screenCoords[1]), (Mouse.mousePos[0] - this.screenCoords[0]));
+        let rot = Math.atan2((server.Main.players[id].input.mousePos[1] - this.screenCoords[1]), (server.Main.players[id].input.mousePos[0] - this.screenCoords[0]));
         rot -= Math.PI / 2;
         rot *= -1;
         mat4.fromRotation(this.tankBody.jointMatrices[1], rot, [0,1,0]);
@@ -849,11 +860,11 @@ class Bullet extends GameObject
         let bruh1 = mat4.create();
         mat4.mul(bruh1, this.projectionMatrix, this.viewMatrix);
         vec3.transformMat4(this.screenCoords, this.getPosition(), bruh1);
-        this.screenCoords[0] = ((this.screenCoords[0] + 1) / 2) * Main.canvas.width;
-        this.screenCoords[1] = -1 * ((this.screenCoords[1] - 1) / 2) * Main.canvas.height;
+        this.screenCoords[0] = ((this.screenCoords[0] + 1) / 2);
+        this.screenCoords[1] = -1 * ((this.screenCoords[1] - 1) / 2);
 
-        if (this.screenCoords[0] > Main.canvas.width ||  this.screenCoords[0] < 0 ||
-            this.screenCoords[1] > Main.canvas.height || this.screenCoords[1] < 0)
+        if (this.screenCoords[0] > 1 ||  this.screenCoords[0] < 0 ||
+            this.screenCoords[1] > 1 || this.screenCoords[1] < 0)
         {
             this.toDestroy = true;
         }

@@ -287,7 +287,7 @@ class Mouse
     static _mouseButtons = {};
 
     static get mousePos() {
-        return Mouse._mousePos;
+        return [Mouse._mousePos[0] / Main.canvas.width, Mouse._mousePos[1] / Main.canvas.height];
     }
 
     static isMouseButtonDown(button) {
@@ -369,6 +369,25 @@ class Scene
             } else { Scene.updateChild(child); }
 
         }
+
+        let data = {
+            a: Keyboard.isKeyDown('a'),
+            s: Keyboard.isKeyDown('s'),
+            w: Keyboard.isKeyDown('w'),
+            d: Keyboard.isKeyDown('d'),
+            mousePos: Mouse.mousePos,
+            leftMouse: Mouse.isMouseButtonDown(0),
+            rightMouse: Mouse.isMouseButtonDown(1),
+        }
+        fetch('/post', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+
+
     }
     static render(renderEncoder) {
         for (let child in Scene.gameObjects)
