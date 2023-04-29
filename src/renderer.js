@@ -116,7 +116,7 @@ class Main
 
     static clearColour = { r: 0.0, g: 0.0, b: 0.0, a: 1.0 };
     static wiggleRoom = 0.001;
-    static #frameRate = 30;
+    static #frameRate = 60;
     static colourFormat;
     static playerID;
 
@@ -172,10 +172,13 @@ class Main
 
         let loop = () =>
         {
+            let begin = new Date()
             Main.DoUpdate();
+            let timeTaken = (new Date()) - begin;
+
             setTimeout( () =>{
                 requestAnimationFrame(loop);
-            }, 1000 / this.frameRate)
+            }, (1000 / this.frameRate) - timeTaken)
         }
         requestAnimationFrame(loop);
 
@@ -321,12 +324,20 @@ class Scene
 
     static update( children )
     {
+        let includedID = []
         for (let child of children)
         {
             if (Scene.gameObjects[child.id] === undefined) {
                 Scene.addChild(child)
             } else { Scene.updateChild(child); }
+            includedID.push(child.id.toString());
+        }
 
+        for (let sus in this.gameObjects)
+        {
+            if (!includedID.includes(sus)) {
+                delete this.gameObjects[sus]
+            }
         }
 
         let data = {
@@ -334,7 +345,7 @@ class Scene
             s: Keyboard.isKeyDown('s') || false,
             w: Keyboard.isKeyDown('w') || false,
             d: Keyboard.isKeyDown('d') || false,
-            mousePos: Mouse.mousePos || [0.5,0.5],
+            mousePos: Mouse.mousePos ?? [0.5,0.5],
             leftMouse: Mouse.isMouseButtonDown(0) || false,
             rightMouse: Mouse.isMouseButtonDown(1) || false,
             playerID: Main.playerID,
@@ -465,7 +476,6 @@ class GameObject
         this.vertexUniformValues.set(Scene.viewMatrix, 32); // mView
         this.vertexUniformValues.set(Scene.projectionMatrix, 48); // mProjection
         this.vertexUniformValues.set(this.jointMatrices, 68); // jointMatrices Array
-        console.log(this.vertexUniformValues);
         Main.device.queue.writeBuffer(this.vertexUniformBuffer, 0,this.vertexUniformValues);
     }
 

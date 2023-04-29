@@ -449,7 +449,6 @@ class GameObject extends Apex
     {
         let data = {};
         data.id = this.id;
-        if (this.toDestroy) { data.toDestroy = true; return data;}
         if (this.firstSend) {
             data.model = this.modelType;
             data.sprite = this.spriteType;
@@ -542,12 +541,12 @@ class TankScene extends Scene
         this.floor = new GameObject("Floor", ModelTypes.plane, SpriteTypes.woodenFloor);
 
         mat4.lookAt(this.viewMatrix, [0, 45, 45], [0, 0, 0], Meth.normalise3([0,1,-1]));
-        // mat4.perspective(this.projectionMatrix, 0.25, server.Main().canvas.width / server.Main().canvas.height, 0.1, 1000.0);
         mat4.ortho(this.projectionMatrix, -16 * 0.82, 16 * 0.82, -9 * 0.82, 9 * 0.82, 0.1, 100.0);
 
         this.floor.setUniformScale(10);
         this.floor.scaleF(5,0,1);
         this.floor.setPosition(0,0,0);
+        this.addChild(this.floor);
 
         // Build the borders 23 x 17
         let layout = StaticBlocks.getLayout("/src/stages.json");
@@ -575,8 +574,6 @@ class TankScene extends Scene
                 this.collidables.push(obj);
             }
         });
-
-        this.addChild(this.floor);
     }
 
     addPlayer(player) {
@@ -629,12 +626,19 @@ class Tank extends Apex
         if (this.tankBody.dead) {
             this.tankBody = new Cross(this.tankBody.getPosition());
             this.children[0] = this.tankBody;
-        } else if (Meth.magnitude(this.velocity) !== 0) {
-            const vel = Meth.multiply2x1(Meth.normalise2(this.velocity), this.speed);
-            this.tankBody.move(vel[0],0,vel[1]);
-            let rot = Math.atan2(this.velocity[0],this.velocity[1]);
-            mat4.fromRotation(this.tankBody.jointMatrices[0], rot, [0,1,0]);
-            this.velocity = [0,0];
+        } else {
+            for (let block of this.collidables)
+            {
+                if (block !== this.tankBody && !(block instanceof Bullet)) { this.collideWithOther(block); }
+            }
+
+            if (Meth.magnitude(this.velocity) !== 0) {
+                const vel = Meth.multiply2x1(Meth.normalise2(this.velocity), this.speed);
+                this.tankBody.move(vel[0], 0, vel[1]);
+                let rot = Math.atan2(this.velocity[0], this.velocity[1]);
+                mat4.fromRotation(this.tankBody.jointMatrices[0], rot, [0, 1, 0]);
+                this.velocity = [0, 0];
+            }
         }
 
 
@@ -699,6 +703,28 @@ class Tank extends Apex
         this.velocity[0] = 1;
     };
 
+    collideWithOther(other)
+    {
+        let across = (
+            this.tankBody.modifiedBounds.maxBounds[0] + this.velocity[0]  > other.modifiedBounds.minBounds[0] &&
+            this.tankBody.modifiedBounds.minBounds[0] + this.velocity[0] < other.modifiedBounds.maxBounds[0] &&
+            this.tankBody.modifiedBounds.minBounds[2] < other.modifiedBounds.maxBounds[2] &&
+            this.tankBody.modifiedBounds.maxBounds[2] > other.modifiedBounds.minBounds[2]
+        )
+
+        let up = (
+            this.tankBody.modifiedBounds.maxBounds[0] > other.modifiedBounds.minBounds[0] &&
+            this.tankBody.modifiedBounds.minBounds[0] < other.modifiedBounds.maxBounds[0] &&
+            this.tankBody.modifiedBounds.minBounds[2] + this.velocity[1] < other.modifiedBounds.maxBounds[2] &&
+            this.tankBody.modifiedBounds.maxBounds[2] + this.velocity[1] > other.modifiedBounds.minBounds[2]
+        )
+
+        if (across) { this.velocity[0] = 0.0 }
+        if (up) { this.velocity[1] = 0.0 }
+
+    }
+
+
 }
 
 class TankBody extends GameObject
@@ -707,12 +733,9 @@ class TankBody extends GameObject
     constructor(spriteType) {
         super("TankBody", ModelTypes.tank, spriteType);
         mat4.fromRotation(this.jointMatrices[0], Math.PI/2, [0,1,0]);
-    }
-
-    collideWithOther(other)
-    {
 
     }
+
 
 }
 
@@ -746,7 +769,6 @@ class ControllableTank extends Tank
                 this.bulletTimer = this.bulletInterval;
                 this.shoot();
             }
-            console.log(serverJS.Main().players[this.linkedPlayer])
             if (serverJS.Main().players[this.linkedPlayer].input.w) { this.moveUp(); }
             if (serverJS.Main().players[this.linkedPlayer].input.s) { this.moveDown(); }
             if (serverJS.Main().players[this.linkedPlayer].input.a) { this.moveLeft(); }

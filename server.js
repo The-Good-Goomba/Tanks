@@ -17,7 +17,7 @@ var Main = function () {
 
     this.gameInstances = {};
     this.players = {}
-    this.frameRate = 30;
+    this.frameRate = 60;
     this.deltaTime = () => {
         return 1/this.frameRate;
     }
@@ -64,6 +64,15 @@ const server = http.createServer((request, response) => {
                     Main().gameInstances[serverId] = new game.SceneManager(game.SceneTypes.mainGame, serverId);
                     argument = fileUrl.split('/')[2];
                     Main().players[argument] = {serverId: serverId}; // That player is now linked to the new server;
+                    Main().players[argument].input = {
+                        a: false,
+                        s: false,
+                        w: false,
+                        d: false,
+                        mousePos: [0.5,0.5],
+                        leftMouse: false,
+                        rightMouse: false,
+                    }
                     Main().gameInstances[serverId].addPlayer(argument);
                     data = Main().gameInstances[serverId].currentScene().dataToSend;
                     response.end(data);
@@ -77,6 +86,15 @@ const server = http.createServer((request, response) => {
                         response.end('Not the right server');
                     } else {
                         Main().players[pID] = {serverId: sID};
+                        Main().players[pID].input = {
+                            a: false,
+                            s: false,
+                            w: false,
+                            d: false,
+                            mousePos: [0.5,0.5],
+                            leftMouse: false,
+                            rightMouse: false,
+                        }
                         Main().gameInstances[sID].addPlayer(pID);
                         response.end('Successfully connected');
                     }
