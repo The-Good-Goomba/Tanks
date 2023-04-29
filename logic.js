@@ -381,16 +381,20 @@ class Scene extends Apex
     get dataToSend()
     {
         let data = {}
-        data.viewMatrix = this.viewMatrix;
-        data.projectionMatrix = this.projectionMatrix;
-        data.children = []
+        data.viewMatrix = JSON.stringify(this.viewMatrix);
+        data.projectionMatrix = JSON.stringify(this.projectionMatrix);
+        data.children = [];
 
-        for (let child of this.children)
-        {
-            if (child instanceof GameObject) {
-                data.children.push(child.getSendData);
+        let sus = (adult) => {
+            for (let child of adult.children) {
+                if (child instanceof GameObject) {
+                    data.children.push(child.getSendData);
+                }
+                sus(child);
             }
-        }
+        };
+        sus(this);
+
         return JSON.stringify(data);
     }
 
@@ -450,9 +454,10 @@ class GameObject extends Apex
             data.model = this.modelType;
             data.sprite = this.spriteType;
         }
-        data.jointMatrices = this.flattenedJointMatrices
-        data.modelMatrix = this.modelMatrix
+        data.jointMatrices = JSON.stringify(this.flattenedJointMatrices);
+        data.modelMatrix = JSON.stringify(this.modelMatrix);
         data.dimensions = 1;
+
         return data;
     }
 
@@ -1009,5 +1014,6 @@ var Engine =  function () {
     this.modelLibrary.Initialise();
 }
 new Engine();
+
 
 module.exports = {SceneManager, SceneTypes};

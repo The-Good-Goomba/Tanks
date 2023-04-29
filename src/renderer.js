@@ -1,41 +1,4 @@
-const { mat4 , vec3, quat } = glMatrix;
-class Meth
-{
-    static normalise3 = ( v ) =>
-    {
-        const length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-        return [v[0] / length, v[1] / length, v[2] / length];
-    }
-
-    static normalise2 = ( v ) =>
-    {
-        const length = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
-        return [v[0] / length, v[1] / length];
-    }
-
-    static multiply3x1 = ( v, m ) =>
-    {
-        return [v[0] * m, v[1] * m, v[2] * m];
-    }
-
-    static multiply2x1 = ( v, m) =>
-    {
-        return [v[0] * m, v[1] * m];
-    }
-
-    static magnitude = ( v ) =>
-    {
-        var mag = 0;
-        for (var i = 0; i < v.length; i++)
-        {
-            mag += v[i] * v[i];
-        }
-        mag = Math.sqrt(mag);
-        return mag;
-    }
-
-    static toDegrees = (radians) => radians * 180 / Math.PI;
-}
+const { mat4 } = glMatrix;
 
 let i = -1;
 const TextureTypes = {
@@ -138,12 +101,6 @@ const FragmentShaderTypes = {
     default: 'fragment_main'
 }
 
-i = 0
-const SceneTypes =
-    {
-        titleScene: i++,
-        mainGame: i++
-    }
 
 const start = () =>
 {
@@ -227,8 +184,8 @@ class Main
     static async DoUpdate()
     {
         let data = await ResourceLoader.loadJSONResource(`/getGameData/${Main.playerID}`);
-        Scene.viewMatrix = data.viewMatrix;
-        Scene.projectionMatrix = data.projectionMatrix;
+        Scene.viewMatrix = Scene.decodeFloat32Array(data.viewMatrix);
+        Scene.projectionMatrix = Scene.decodeFloat32Array(data.projectionMatrix);
         Scene.update(data.children)
 
         const sampleCount = 1;
@@ -323,7 +280,7 @@ class Engine
 
     static async Initialise()
     {
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve) => {
             Engine.#textureLibrary = new TextureLibrary();
             await Engine.#textureLibrary.Initialise();
             Engine.#modelLibrary = new ModelLibrary();
@@ -402,17 +359,22 @@ class Scene
         if (child.toDestroy) {
             delete Scene.gameObjects[child.id];
         } else if (child.dimensions === 1) {
-                Scene.gameObjects[child.id].modelMatrix = child.modelMatrix;
-                Scene.gameObjects[child.id].jointMatrices = child.jointMatrices ?? mat4.create();
+                Scene.gameObjects[child.id].modelMatrix = Scene.decodeFloat32Array(child.modelMatrix);
+                Scene.gameObjects[child.id].jointMatrices = Scene.decodeFloat32Array(child.jointMatrices) ?? mat4.create();
         }
     }
     static addChild(child)
     {
         if (child.dimensions === 1) {
             Scene.gameObjects[child.id] = new GameObject(child.id,child.model,child.sprite);
-            Scene.gameObjects[child.id].modelMatrix = child.modelMatrix;
-            Scene.gameObjects[child.id].jointMatrices = child.jointMatrices ?? mat4.create();
+            Scene.gameObjects[child.id].modelMatrix = Scene.decodeFloat32Array(child.modelMatrix);
+            Scene.gameObjects[child.id].jointMatrices = Scene.decodeFloat32Array(child.jointMatrices) ?? mat4.create();
         }
+    }
+
+    static decodeFloat32Array(arr)
+    {
+        return new Float32Array(Object.values(JSON.parse(arr)));
     }
 
 }
@@ -448,7 +410,6 @@ class GameObject
             FragmentShaderTypes.default, VertexDescriptorTypes.Basic);
 
         this.mesh = Engine.modelLibrary.get(type);
-
 
         this.sampler = Main.device.createSampler({
             magFilter: 'nearest',
@@ -504,7 +465,7 @@ class GameObject
         this.vertexUniformValues.set(Scene.viewMatrix, 32); // mView
         this.vertexUniformValues.set(Scene.projectionMatrix, 48); // mProjection
         this.vertexUniformValues.set(this.jointMatrices, 68); // jointMatrices Array
-
+        console.log(this.vertexUniformValues);
         Main.device.queue.writeBuffer(this.vertexUniformBuffer, 0,this.vertexUniformValues);
     }
 
@@ -542,7 +503,7 @@ class ModelLibrary
 
     Initialise()
     {
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve) => {
             this.#library[ModelTypes.tank] = await ModelLoader.getDataFromObj("/src/Assets/tankP.obj");
             this.#library[ModelTypes.plane] = await ModelLoader.getDataFromObj("/src/Assets/plane.obj");
             this.#library[ModelTypes.shell] = await ModelLoader.getDataFromObj("/src/Assets/shell.obj");
@@ -567,8 +528,7 @@ class ModelLoader
     static async getDataFromObj(url)
     {
         const fileContents = await ModelLoader.#getFileContents(url);
-        const mesh = ModelLoader.#parseFile(fileContents);
-        return mesh;
+        return ModelLoader.#parseFile(fileContents);
     }
 
     static #getFileContents = async (filename) =>
@@ -666,7 +626,7 @@ class TextureLibrary
 
     Initialise()
     {
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve) => {
 
             this.#texLibrary[TextureTypes.bigSheet] = await ResourceLoader.loadImageResource("/src/Assets/Textures.png");
 
@@ -730,7 +690,7 @@ class ShaderLibrary
 
     Initialise()
     {
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve) => {
             // Amound of shaders
             let shaderText = await ResourceLoader.loadTextResource("/src/Shaders/shader.wgsl");
             this.#module = Main.device.createShaderModule({
