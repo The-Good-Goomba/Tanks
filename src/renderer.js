@@ -159,7 +159,7 @@ class Main
 
     static clearColour = { r: 0.0, g: 0.0, b: 0.0, a: 1.0 };
     static wiggleRoom = 0.001;
-    static #frameRate = 60;
+    static #frameRate = 30;
     static colourFormat;
     static playerID;
 

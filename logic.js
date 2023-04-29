@@ -182,14 +182,13 @@ class ModelLoader
 {
     static async getDataFromObj(url)
     {
-        const fileContents = await ModelLoader.#getFileContents(url);
-        const mesh = ModelLoader.#parseFile(fileContents);
-        return mesh;
+        const fileContents = await ModelLoader.#getFileContents(__dirname + url);
+        return ModelLoader.#parseFile(fileContents);
     }
 
     static #getFileContents = async (filename) =>
     {
-        return await fs.readFile(__dirname + filename, {encoding: 'utf8'});
+        return await fs.readFile(filename, {encoding: 'utf8'});
     };
 
     static #stringsToNumbers = (strings) =>
@@ -439,14 +438,15 @@ class GameObject extends Apex
         return (flattenedArray);
     }
 
-    constructor(id, type, sprite)
+    constructor(type, sprite)
     {
         super();
-        this.id = id;
+        this.id = Math.trunc(Math.random() * 1000);
         this.spriteType = sprite
         this.modelType = type;
 
         let mesh = Engine.modelLibrary.get(type);
+        console.log(Engine.modelLibrary.get(type));
         this.boundingBox = mesh.boundingBox;
         for(let i = 0; i < mesh.groupCount; i++)
         {
@@ -549,9 +549,8 @@ class TankScene extends Scene
         this.collidables = [];
 
         this.tanks[0] = new ControllableTank(SpriteTypes.blueTank);
-        this.tanks[0].id = this.players[0];
 
-        this.floor = new GameObject("Floor", ModelTypes.plane, SpriteTypes.woodenFloor);
+        this.floor = new GameObject( ModelTypes.plane, SpriteTypes.woodenFloor);
 
         mat4.lookAt(this.viewMatrix, [0, 45, 45], [0, 0, 0], Meth.normalise3([0,1,-1]));
         // mat4.perspective(this.projectionMatrix, 0.25, Main.canvas.width / Main.canvas.height, 0.1, 1000.0);
@@ -1012,4 +1011,6 @@ class StaticBlocks
 
 }
 
-module.exports = {SceneManager, SceneTypes, Engine};
+Engine.Initialise();
+
+module.exports = {SceneManager, SceneTypes};

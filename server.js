@@ -33,11 +33,13 @@ const server = http.createServer((request, response) => {
                     break;
                 case 'initServer':
                     let serverId = Math.trunc(Math.random() * 1000);
-                    Main.gameInstances[serverId] = new game.SceneManager(game.SceneTypes.mainGame);
+                    Main.gameInstances[serverId] = new game.SceneManager(game.SceneTypes.mainGame, serverId);
                     argument = fileUrl.split('/')[2];
                     Main.players[argument] = {serverId: serverId}; // That player is now linked to the new server;
                     data = Main.gameInstances[serverId].currentScene().dataToSend;
                     response.end(data);
+
+
                     break;
                 case 'joinServer':
                     let sID = argument = fileUrl.split('/')[2];
@@ -52,8 +54,6 @@ const server = http.createServer((request, response) => {
                     break;
                 case 'getGameData':
                     argument = fileUrl.split('/')[2];
-                    console.log(argument);
-                    console.log(Main.players);
                     response.end(Main.gameInstances[Main.players[argument].serverId].currentScene().dataToSend);
                     break;
             }
@@ -115,7 +115,6 @@ const server = http.createServer((request, response) => {
 
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
-    game.Engine.Initialise();
 });
 
 class Main
