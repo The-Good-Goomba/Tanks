@@ -8,6 +8,10 @@ class SpriteRenderer
     #instanceValues;
     #instanceBuffer;
 
+    bindGroup;
+    sampler;
+
+
     constructor()
     {
         // Draw doesn't map the vertices to the triangles, while drawIndexed does
@@ -16,6 +20,24 @@ class SpriteRenderer
         this.#renderPipeline = Engine.shaderLibrary.createProgram(VertexShaderTypes.sprite,
             FragmentShaderTypes.sprite, VertexDescriptorTypes.Sprite);
 
+        this.sampler = Main.device.createSampler({
+            magFilter: 'nearest',
+            minFilter: 'nearest',
+        });
+
+    }
+
+    async initBindGroups()
+    {
+        let tex = await Engine.textureLibrary.getTexture(0);
+
+        this.bindGroup = Main.device.createBindGroup({
+            layout: this.#renderPipeline.getBindGroupLayout(0),
+            entries: [
+                { binding: 0, resource: this.sampler },
+                { binding: 1, resource: tex.createView()},
+            ]
+        });
     }
 
     updateInstances()
@@ -35,6 +57,7 @@ class SpriteRenderer
 
     doRender(renderEncoder)
     {
+        this.updateInstances()
 
         renderEncoder.setVertexbuffer(0,this.#instanceBuffer);
         renderEncoder.draw(6,this.sprites.length);
