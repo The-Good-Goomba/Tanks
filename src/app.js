@@ -10,6 +10,8 @@ const start = () =>
     importCode('/src/Libraries/ShaderLibrary.js');
     importCode('/src/Apex/GameObject.js');
     importCode('/src/Apex/Scene.js');
+    importCode('/src/Object2D.js');
+    importCode('/src/SpriteRenderer.js');
 
     // Waits for the code to load
     setTimeout(() => {

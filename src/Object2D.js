@@ -16,12 +16,4 @@ class Object2D
         this.position[1] += amount[1];
     }
 
-    doRender()
-    {
-        Main.canvas.drawImage(Engine.textureLibrary.getImage(this.sprite.textureType),
-            ...this.sprite.position,
-            ...this.sprite.size,
-            ...this.position,
-            ...this.size);
-    }
 }
