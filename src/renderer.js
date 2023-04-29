@@ -394,7 +394,7 @@ class Scene
     static render(renderEncoder) {
         for (let childName in Scene.gameObjects)
         {
-            Scene.gameObjects[childName].doRender(renderEncoder,Scene.viewMatrix, Scene.projectionMatrix);
+            Scene.gameObjects[childName].doRender(renderEncoder);
         }
     }
     static updateChild(child)
@@ -429,7 +429,6 @@ class GameObject
     }
 
     jointMatrices;
-
     #renderPipeline;
     #sprite;
     mesh;
@@ -498,20 +497,20 @@ class GameObject
         });
     }
 
-    rebuildUniformBuffers(viewMatrix, projectionMatrix)
+    rebuildUniformBuffers()
     {
         this.vertexUniformValues.set(this.modelMatrix, 0); // mModel
         this.vertexUniformValues.set(this.normalMatrix, 16); // mModel
-        this.vertexUniformValues.set(viewMatrix, 32); // mView
-        this.vertexUniformValues.set(projectionMatrix, 48); // mProjection
+        this.vertexUniformValues.set(Scene.viewMatrix, 32); // mView
+        this.vertexUniformValues.set(Scene.projectionMatrix, 48); // mProjection
         this.vertexUniformValues.set(this.jointMatrices, 68); // jointMatrices Array
 
         Main.device.queue.writeBuffer(this.vertexUniformBuffer, 0,this.vertexUniformValues);
     }
 
 
-    doRender(renderCommandEncoder, viewMatrix, projectionMatrix) {
-        this.rebuildUniformBuffers(viewMatrix, projectionMatrix);
+    doRender(renderCommandEncoder) {
+        this.rebuildUniformBuffers();
 
         if (this.bindGroup == null) { return; }
 
@@ -575,8 +574,7 @@ class ModelLoader
     static #getFileContents = async (filename) =>
     {
         const file = await fetch(filename);
-        const body = await file.text();
-        return body;
+        return await file.text();
     };
 
     static #stringsToNumbers = (strings) =>
@@ -602,20 +600,20 @@ class ModelLoader
 
 
         const lines = fileContents.split('\n');
-        var pos = [0,0,0];
-        var meshMember = [];
-        var currentMember = 0;
-        var groupCount = 0;
+        let pos = [0,0,0];
+        let meshMember = [];
+        let currentMember = 0;
+        let groupCount = 0;
         for(const line of lines)
         {
             const [ command, ...values] = line.split(' ', 4);
 
             if (command === 'g')
             {
-                var bruh = true;
-                for (let i = 0;i < meshMember.length; i++)
+                let bruh = true;
+                for (let i = 0; i < meshMember.length; i++)
                 {
-                    if ( values[0] == meshMember[i]) { currentMember = i; bruh = false }
+                    if ( values[0] === meshMember[i]) { currentMember = i; bruh = false }
                 }
                 if (bruh) { currentMember = meshMember.length; meshMember.push(values[0]);}
                 if (currentMember > groupCount) { groupCount = currentMember }
