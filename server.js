@@ -7,6 +7,34 @@ const game = require('./logic');
 const hostname = '127.0.0.1';
 const port = 3000;
 
+var Main = function () {
+    "use strict";
+    if (Main._instance) {
+        // Allows the constructor to be called multiple times
+        return Main._instance
+    }
+    Main._instance = this;
+
+    this.gameInstances = {};
+    this.players = {}
+    this.frameRate = 30;
+    this.deltaTime = () => {
+        return 1/this.frameRate;
+    }
+    this.RunGame = () =>
+    {
+        for (let bruh in this.gameInstances)
+        {
+            this.gameInstances[bruh].doUpdate();
+        }
+        setTimeout( () =>{
+            this.RunGame();
+        }, 1000 / this.frameRate)
+    }
+
+}
+new Main();
+
 const server = http.createServer((request, response) => {
     // console.log('Request for ' + request.url + ' by method ' + request.method);
 
@@ -33,28 +61,29 @@ const server = http.createServer((request, response) => {
                     break;
                 case 'initServer':
                     let serverId = Math.trunc(Math.random() * 1000);
-                    Main.gameInstances[serverId] = new game.SceneManager(game.SceneTypes.mainGame, serverId);
+                    Main().gameInstances[serverId] = new game.SceneManager(game.SceneTypes.mainGame, serverId);
                     argument = fileUrl.split('/')[2];
-                    Main.players[argument] = {serverId: serverId}; // That player is now linked to the new server;
-                    data = Main.gameInstances[serverId].currentScene().dataToSend;
+                    Main().players[argument] = {serverId: serverId}; // That player is now linked to the new server;
+                    Main().gameInstances[serverId].addPlayer(argument);
+                    data = Main().gameInstances[serverId].currentScene().dataToSend;
                     response.end(data);
-
 
                     break;
                 case 'joinServer':
                     let sID = argument = fileUrl.split('/')[2];
                     let pID = argument = fileUrl.split('/')[3];
                     response.setHeader('Content-Type', 'text/html');
-                    if (Main.gameInstances[sID] === undefined) {
+                    if (Main().gameInstances[sID] === undefined) {
                         response.end('Not the right server');
                     } else {
-                        Main.players[pID] = {serverId: sID};
+                        Main().players[pID] = {serverId: sID};
+                        Main().gameInstances[sID].addPlayer(pID);
                         response.end('Successfully connected');
                     }
                     break;
                 case 'getGameData':
                     argument = fileUrl.split('/')[2];
-                    response.end(Main.gameInstances[Main.players[argument].serverId].currentScene().dataToSend);
+                    response.end(Main().gameInstances[Main().players[argument].serverId].currentScene().dataToSend);
                     break;
             }
 
@@ -116,7 +145,7 @@ const server = http.createServer((request, response) => {
             let obj = JSON.parse(body);
             let id = obj.playerID;
             delete obj.playerID
-            Main.players[id].input = obj;
+            Main().players[id].input = obj;
             response.writeHead(200, {'Content-Type': 'text/html'})
             response.end('post received')
         })
@@ -126,12 +155,7 @@ const server = http.createServer((request, response) => {
 
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
+    Main().RunGame();
 });
 
-class Main
-{
-    static gameInstances = {};
-    static players = {}
-}
-
-module.exports = { Main }
+module.exports.Main = Main;

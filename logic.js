@@ -1,7 +1,7 @@
 const glMatrix = require("./src/gl-matrix");
 const { mat4 , vec3, quat } = glMatrix;
 const fs = require('fs/promises');
-const server = require('./server');
+const serverJS = require('./server');
 
 class Meth
 {
@@ -264,7 +264,7 @@ class Apex
         mat4.fromRotationTranslationScale(this.#modelMatrix, this.#quaternion, this.#position, this.#scale);
     }
 
-    constructor(name)
+    constructor(name = "Apex")
     {
         this.name = name;
         quat.fromEuler(this.#quaternion, this.#rotation[0], this.#rotation[1], this.#rotation[2]);
@@ -398,7 +398,7 @@ class Scene extends Apex
         return JSON.stringify(data);
     }
 
-    addPlayer(player) { player.push(player); }
+    addPlayer(player) { this.players.push(player); }
 }
 
 class GameObject extends Apex
@@ -539,15 +539,12 @@ class TankScene extends Scene
         super();
         this.collidables = [];
 
-        this.tanks[0] = new ControllableTank(SpriteTypes.blueTank);
-
         this.floor = new GameObject("Floor", ModelTypes.plane, SpriteTypes.woodenFloor);
 
         mat4.lookAt(this.viewMatrix, [0, 45, 45], [0, 0, 0], Meth.normalise3([0,1,-1]));
-        // mat4.perspective(this.projectionMatrix, 0.25, Main.canvas.width / Main.canvas.height, 0.1, 1000.0);
+        // mat4.perspective(this.projectionMatrix, 0.25, server.Main().canvas.width / server.Main().canvas.height, 0.1, 1000.0);
         mat4.ortho(this.projectionMatrix, -16 * 0.82, 16 * 0.82, -9 * 0.82, 9 * 0.82, 0.1, 100.0);
 
-        this.tanks[0].tankBody.setUniformScale(5);
         this.floor.setUniformScale(10);
         this.floor.scaleF(5,0,1);
         this.floor.setPosition(0,0,0);
@@ -579,11 +576,17 @@ class TankScene extends Scene
             }
         });
 
-        this.addChild(this.tanks[0]);
         this.addChild(this.floor);
-        this.tanks[0].setCollidables(this.collidables);
     }
 
+    addPlayer(player) {
+        super.addPlayer(player);
+        let tank = new ControllableTank(SpriteTypes.blueTank, player)
+        tank.tankBody.setUniformScale(5);
+        tank.setCollidables(this.collidables);
+        this.addChild(tank);
+        this.tanks.push(tank);
+    }
 }
 
 class Tank extends Apex
@@ -621,7 +624,7 @@ class Tank extends Apex
 
     doUpdate() {
         this.updateBullets();
-        this.bulletTimer -= Main.deltaTime;
+        this.bulletTimer -= serverJS.Main().deltaTime();
 
         if (this.tankBody.dead) {
             this.tankBody = new Cross(this.tankBody.getPosition());
@@ -716,10 +719,12 @@ class TankBody extends GameObject
 class ControllableTank extends Tank
 {
     screenCoords = [0,0];
+    linkedPlayer;
 
-    constructor(spriteType)
+    constructor(spriteType, playerID)
     {
         super(spriteType);
+        this.linkedPlayer = playerID;
         this.tankBody.afterTranslation = () => {
             let bruh1 = mat4.create();
             mat4.mul(bruh1, this.projectionMatrix, this.viewMatrix);
@@ -737,26 +742,31 @@ class ControllableTank extends Tank
 
         if (this.tankBody instanceof TankBody) {
             this.updateTurretRotation();
-            if (server.Main.players[id].input.leftMouse && this.bulletTimer <= 0) {
+            if (serverJS.Main().players[this.linkedPlayer].input.leftMouse && this.bulletTimer <= 0) {
                 this.bulletTimer = this.bulletInterval;
                 this.shoot();
             }
-
-            if (Keyboard.isKeyDown('w')) { this.moveUp(); }
-            if (Keyboard.isKeyDown('s')) { this.moveDown(); }
-            if (Keyboard.isKeyDown('a')) { this.moveLeft(); }
-            if (Keyboard.isKeyDown('d')) { this.moveRight(); }
+            console.log(serverJS.Main().players[this.linkedPlayer])
+            if (serverJS.Main().players[this.linkedPlayer].input.w) { this.moveUp(); }
+            if (serverJS.Main().players[this.linkedPlayer].input.s) { this.moveDown(); }
+            if (serverJS.Main().players[this.linkedPlayer].input.a) { this.moveLeft(); }
+            if (serverJS.Main().players[this.linkedPlayer].input.d) { this.moveRight(); }
         }
     }
 
     shoot() {
-        let dir = Meth.normalise2([(server.Main.players[id].input.mousePos[0] - this.screenCoords[0]), (server.Main.players[id].input.mousePos[1] - this.screenCoords[1])]);
+        let mousePos = serverJS.Main().players[this.linkedPlayer].input.mousePos
+        if (!mousePos) mousePos = [this.screenCoords[0] + 0.1,this.screenCoords[1] + 0.1];
+
+        let dir = Meth.normalise2([(mousePos[0] - this.screenCoords[0]), (mousePos[1] - this.screenCoords[1])]);
         super.shoot(dir);
     }
 
     updateTurretRotation()
     {
-        let rot = Math.atan2((server.Main.players[id].input.mousePos[1] - this.screenCoords[1]), (server.Main.players[id].input.mousePos[0] - this.screenCoords[0]));
+        let mousePos = serverJS.Main().players[this.linkedPlayer].input.mousePos
+        if (!mousePos) mousePos = [this.screenCoords[0] + 0.1,this.screenCoords[1] + 0.1];
+        let rot = Math.atan2((mousePos[1] - this.screenCoords[1]), (mousePos[0] - this.screenCoords[0]));
         rot -= Math.PI / 2;
         rot *= -1;
         mat4.fromRotation(this.tankBody.jointMatrices[1], rot, [0,1,0]);
@@ -777,7 +787,6 @@ class Bullet extends GameObject
         super("bullet", ModelTypes.shell, SpriteTypes.shell);
         this.bouncesLeft = this.initialBounces;
         this.setPosition(pos[0], pos[1], pos[2]);
-        this.useBaseColourTexture(SpriteTypes.shell);
         this.direction = dir;
         let bruh = Math.atan2(dir[1], dir[0]);
         this.setRotationY(-(bruh - Math.PI / 2));

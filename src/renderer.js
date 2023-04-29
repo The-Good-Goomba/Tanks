@@ -330,13 +330,13 @@ class Scene
         }
 
         let data = {
-            a: Keyboard.isKeyDown('a'),
-            s: Keyboard.isKeyDown('s'),
-            w: Keyboard.isKeyDown('w'),
-            d: Keyboard.isKeyDown('d'),
-            mousePos: Mouse.mousePos,
-            leftMouse: Mouse.isMouseButtonDown(0),
-            rightMouse: Mouse.isMouseButtonDown(1),
+            a: Keyboard.isKeyDown('a') || false,
+            s: Keyboard.isKeyDown('s') || false,
+            w: Keyboard.isKeyDown('w') || false,
+            d: Keyboard.isKeyDown('d') || false,
+            mousePos: Mouse.mousePos || [0.5,0.5],
+            leftMouse: Mouse.isMouseButtonDown(0) || false,
+            rightMouse: Mouse.isMouseButtonDown(1) || false,
             playerID: Main.playerID,
         }
         fetch('/post', {
