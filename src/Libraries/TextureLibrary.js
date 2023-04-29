@@ -1,14 +1,57 @@
 
+let i = -1;
+const TextureTypes = {
+    none: i++,
+    bigSheet: i++
+}
+
+i = -1
+const SpriteTypes = {
+    none: i++,
+    // The tank colours
+    blueTank: i++,
+    redTank: i++,
+    ashTank: i++,
+    blackTank: i++,
+    greenTank: i++,
+    oliveTank: i++,
+    marinTank: i++,
+    pinkTank: i++,
+    purpleTank: i++,
+    violetTank: i++,
+    whiteTank: i++,
+    yellowTank: i++,
+
+    // Objects
+    woodenFloor: i++,
+    shell: i++,
+    cork: i++,
+    oak: i++,
+    spruce: i++,
+    balsa: i++,
+
+    // Crosses
+    blueCross: i++,
+    whiteCross: i++,
+    redCross: i++,
+
+    hole: i++,
+
+}
+
+
 class TextureLibrary
 {
     #texLibrary  = [];
     #spriteLib = [];
+    #imageLib = []
 
     Initialise()
     {
         return new Promise(async (resolve) => {
 
-            this.#texLibrary[TextureTypes.bigSheet] = await ResourceLoader.loadImageResource("/src/Assets/Textures.png");
+            this.#imageLib[TextureTypes.bigSheet] = await ResourceLoader.loadImageResource("/src/Assets/Textures.png");
+            this.#texLibrary[TextureTypes.bigSheet] = await ResourceLoader.loadWGPUTexture("/src/Assets/Textures.png");
 
             // Tanks
             this.#spriteLib[SpriteTypes.blueTank] = { textureType: TextureTypes.bigSheet, pos: [877,1241], size: [32,32] };
@@ -55,7 +98,10 @@ class TextureLibrary
     {
         return this.#texLibrary[type];
     }
-
+    getImage(type)
+    {
+        return this.#imageLib[type];
+    }
     getSprite(type)
     {
         return this.#spriteLib[type];

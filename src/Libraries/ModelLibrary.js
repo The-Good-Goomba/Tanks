@@ -1,3 +1,17 @@
+
+let i = 0;
+const ModelTypes =
+    {
+        tank: i++,
+        plane: i++,
+        shell: i++,
+        block2x2: i++,
+        block2x1: i++,
+        triangle: i++,
+        halfCylinder: i++,
+        block2x4: i++,
+    }
+
 class ModelLibrary
 {
     #library = [];

@@ -21,17 +21,25 @@ class ResourceLoader
     // Load an image resource from a file over the network
     static loadImageResource(url) {
         return new Promise((resolve) => {
-            var image = new Image();
+            let image = new Image();
             image.onload = async function() {
+                resolve(image);
+            };
+            image.src = url;
+        });
 
+    }
+
+    static loadWGPUTexture(url) {
+        return new Promise((resolve) => {
+            let image = new Image();
+            image.onload = async function() {
                 let img = await createImageBitmap(image)
-
                 let tex = Main.device.createTexture({
                     size: [ image.width,  image.height, 1 ],
                     format: Main.colourFormat,
                     usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT
                 });
-
                 Main.device.queue.copyExternalImageToTexture(
                     { source: img },
                     { texture: tex },
