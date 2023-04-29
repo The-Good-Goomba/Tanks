@@ -3,7 +3,8 @@
 struct SpriteSheetInfo
 {
     pos: vec2f,
-    size: vec2f
+    size: vec2f,
+    textureIndex: u32
 };
 
 struct Instance
@@ -40,7 +41,7 @@ fn spriteVertex_main(@location(0) instance: Instance,
 }
 
 @group(0) @binding(0) var textureSampler: sampler;
-@group(0) @binding(1) var texture: texture_2d<f32>;
+@group(0) @binding(1) var texture: array<texture_2d<f32>,2>;
 
 @fragment
 fn spriteFragment_main(rd: RasteriserData) -> @location(0) vec4f

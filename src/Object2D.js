@@ -10,6 +10,12 @@ class Object2D
     {
         this.sprite = Engine.textureLibrary.getSprite(type);
     }
+
+    get instanceData()
+    {
+        return new Float32Array(...this.position,...this.size,...this.sprite.pos,...this.sprite.size)
+    }
+
     move(amount)
     {
         this.position[0] += amount[0];

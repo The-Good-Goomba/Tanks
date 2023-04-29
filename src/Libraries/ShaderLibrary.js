@@ -61,8 +61,12 @@ const VertexDescriptorTypes = {
                 shaderLocation: 3, // Sprite Pos
                 offset: 28,
                 format: 'float32x2'
+            }, {
+                shaderLocation: 4, // Sprite index
+                offset: 36,
+                format: 'uint32'
             }],
-            arrayStride: 36,
+            arrayStride: 40,
             stepMode: 'instance'
         }
     ]
