@@ -8,7 +8,7 @@ const hostname = '127.0.0.1';
 const port = 3000;
 
 const server = http.createServer((request, response) => {
-    console.log('Request for ' + request.url + ' by method ' + request.method);
+    // console.log('Request for ' + request.url + ' by method ' + request.method);
 
     if (request.method === 'GET')
     {
@@ -106,9 +106,20 @@ const server = http.createServer((request, response) => {
 
     }
 
-    if (request.method === 'POST')
+    else if (request.method === 'POST')
     {
-
+        let body = ''
+        request.on('data', function(data) {
+            body += data
+        })
+        request.on('end', function() {
+            let obj = JSON.parse(body);
+            let id = obj.playerID;
+            delete obj.playerID
+            Main.players[id].input = obj;
+            response.writeHead(200, {'Content-Type': 'text/html'})
+            response.end('post received')
+        })
     }
 
 });

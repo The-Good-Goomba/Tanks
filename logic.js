@@ -139,36 +139,20 @@ class SceneManager
 
 }
 
-class Engine
-{
-    static #modelLibrary;
-    static get modelLibrary(){ return this.#modelLibrary }
-
-    static async Initialise()
-    {
-        Engine.#modelLibrary = new ModelLibrary();
-        await Engine.#modelLibrary.Initialise();
-    }
-
-}
-
 class ModelLibrary
 {
     #library = [];
 
-    Initialise()
+    async Initialise()
     {
-        return new Promise(async (resolve, reject) => {
-            this.#library[ModelTypes.tank] = await ModelLoader.getDataFromObj("/src/Assets/tankP.obj");
-            this.#library[ModelTypes.plane] = await ModelLoader.getDataFromObj("/src/Assets/plane.obj");
-            this.#library[ModelTypes.shell] = await ModelLoader.getDataFromObj("/src/Assets/shell.obj");
-            this.#library[ModelTypes.block2x2] = await ModelLoader.getDataFromObj("/src/Assets/block.obj");
-            this.#library[ModelTypes.block2x1] = await ModelLoader.getDataFromObj("/src/Assets/shortBlock.obj");
-            this.#library[ModelTypes.triangle] = await ModelLoader.getDataFromObj("/src/Assets/triangularPrism.obj");
-            this.#library[ModelTypes.halfCylinder] = await ModelLoader.getDataFromObj("/src/Assets/halfCylinder.obj");
-            this.#library[ModelTypes.block2x4] = await ModelLoader.getDataFromObj("/src/Assets/longBigBlock.obj");
-            resolve();
-        });
+        this.#library[ModelTypes.tank] = await ModelLoader.getDataFromObj("/src/Assets/tankP.obj");
+        this.#library[ModelTypes.plane] = await ModelLoader.getDataFromObj("/src/Assets/plane.obj");
+        this.#library[ModelTypes.shell] = await ModelLoader.getDataFromObj("/src/Assets/shell.obj");
+        this.#library[ModelTypes.block2x2] = await ModelLoader.getDataFromObj("/src/Assets/block.obj");
+        this.#library[ModelTypes.block2x1] = await ModelLoader.getDataFromObj("/src/Assets/shortBlock.obj");
+        this.#library[ModelTypes.triangle] = await ModelLoader.getDataFromObj("/src/Assets/triangularPrism.obj");
+        this.#library[ModelTypes.halfCylinder] = await ModelLoader.getDataFromObj("/src/Assets/halfCylinder.obj");
+        this.#library[ModelTypes.block2x4] = await ModelLoader.getDataFromObj("/src/Assets/longBigBlock.obj");
     }
 
     get(type)
@@ -247,6 +231,7 @@ class Apex
     viewMatrix = mat4.create();
     projectionMatrix = mat4.create();
     serverID;
+    name;
 
     #rotation = [0,0,0];
     #position = [0,0,0];
@@ -279,8 +264,9 @@ class Apex
         mat4.fromRotationTranslationScale(this.#modelMatrix, this.#quaternion, this.#position, this.#scale);
     }
 
-    constructor()
+    constructor(name)
     {
+        this.name = name;
         quat.fromEuler(this.#quaternion, this.#rotation[0], this.#rotation[1], this.#rotation[2]);
         this.updateModelMatrix();
     }
@@ -414,6 +400,7 @@ class Scene extends Apex
 class GameObject extends Apex
 {
     id;
+    name;
     spriteType;
     modelType;
     toDestroy = false;
@@ -438,15 +425,14 @@ class GameObject extends Apex
         return (flattenedArray);
     }
 
-    constructor(type, sprite)
+    constructor(name, type, sprite)
     {
-        super();
+        super(name);
         this.id = Math.trunc(Math.random() * 1000);
         this.spriteType = sprite
         this.modelType = type;
 
-        let mesh = Engine.modelLibrary.get(type);
-        console.log(Engine.modelLibrary.get(type));
+        let mesh = Engine().modelLibrary.get(type);
         this.boundingBox = mesh.boundingBox;
         for(let i = 0; i < mesh.groupCount; i++)
         {
@@ -550,7 +536,7 @@ class TankScene extends Scene
 
         this.tanks[0] = new ControllableTank(SpriteTypes.blueTank);
 
-        this.floor = new GameObject( ModelTypes.plane, SpriteTypes.woodenFloor);
+        this.floor = new GameObject("Floor", ModelTypes.plane, SpriteTypes.woodenFloor);
 
         mat4.lookAt(this.viewMatrix, [0, 45, 45], [0, 0, 0], Meth.normalise3([0,1,-1]));
         // mat4.perspective(this.projectionMatrix, 0.25, Main.canvas.width / Main.canvas.height, 0.1, 1000.0);
@@ -1011,6 +997,17 @@ class StaticBlocks
 
 }
 
-Engine.Initialise();
+var Engine =  function () {
+    "use strict";
+    if (Engine._instance) {
+        // Allows the constructor to be called multiple times
+        return Engine._instance
+    }
+    Engine._instance = this;
+//     Engine initialisation code
+    this.modelLibrary = new ModelLibrary();
+    this.modelLibrary.Initialise();
+}
+new Engine();
 
 module.exports = {SceneManager, SceneTypes};

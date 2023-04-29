@@ -202,10 +202,8 @@ class Main
         await Engine.Initialise();
 
         let data = await ResourceLoader.loadJSONResource('/start');
-        console.log(data)
         Main.playerID = data.id;
         data = await ResourceLoader.loadJSONResource(`/initServer/${Main.playerID}`);
-        console.log(data);
 
         Scene.Initialise(data.projectionMatrix, data.viewMatrix, data.children);
         this.RunApp();
@@ -382,6 +380,7 @@ class Scene
             mousePos: Mouse.mousePos,
             leftMouse: Mouse.isMouseButtonDown(0),
             rightMouse: Mouse.isMouseButtonDown(1),
+            playerID: Main.playerID,
         }
         fetch('/post', {
             method: 'POST',
@@ -390,7 +389,6 @@ class Scene
             },
             body: JSON.stringify(data)
         })
-
 
     }
     static render(renderEncoder) {
@@ -483,7 +481,6 @@ class GameObject
         Main.device.queue.writeBuffer(this.vertexUniformBuffer, 0, this.vertexUniformValues);
         Main.device.queue.writeBuffer(this.fragmentUniformBuffer, 0, new Float32Array(this.fragmentUniformValues));
         this.initBindGroups();
-
     }
 
     async initBindGroups()
