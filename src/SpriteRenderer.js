@@ -25,11 +25,13 @@ class SpriteRenderer
             minFilter: 'nearest',
         });
 
+
+        this.initBindGroups()
     }
 
     async initBindGroups()
     {
-        let tex = await Engine.textureLibrary.getTexture(0);
+        let tex = await Engine.textureLibrary.getTexture(TextureTypes.bigSheet);
 
         this.bindGroup = Main.device.createBindGroup({
             layout: this.#renderPipeline.getBindGroupLayout(0),
@@ -42,24 +44,24 @@ class SpriteRenderer
 
     updateInstances()
     {
-        this.#instanceValues = new ArrayBuffer(4 * 9 * this.sprites.length)
-        let floatArray =   new Float32Array(this.#instanceBuffer);
-        let uintArray =   new Uint32Array(this.#instanceBuffer);
+        this.#instanceValues =   new Float32Array(8 * this.sprites.length);
         let i = 0
         for (let sprite in this.sprites)
         {
-            floatArray.set(sprite.instanceData, i);
-            uintArray.set(sprite.sprite.textureType, i + 8);
-            i += 9;
+            this.#instanceValues.set(sprite.instanceData, i);
+            i += 8;
         }
         Main.device.queue.writeBuffer(this.#instanceBuffer, 0, this.#instanceValues);
     }
 
     doRender(renderEncoder)
     {
+        if (this.sprites.length === 0) { return; }
         this.updateInstances()
 
         renderEncoder.setVertexbuffer(0,this.#instanceBuffer);
+        renderEncoder.setBindGroup(0, this.bindGroup);
+
         renderEncoder.draw(6,this.sprites.length);
     }
 

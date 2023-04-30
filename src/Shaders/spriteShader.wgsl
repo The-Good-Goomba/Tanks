@@ -3,8 +3,7 @@
 struct SpriteSheetInfo
 {
     pos: vec2f,
-    size: vec2f,
-    textureIndex: u32
+    size: vec2f
 };
 
 struct Instance
