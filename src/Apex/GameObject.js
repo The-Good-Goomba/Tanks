@@ -9,6 +9,9 @@ class GameObject
         return ret;
     }
 
+    viewMatrix;
+    projectionMatrix;
+
     jointMatrices;
     #renderPipeline;
     #sprite;
@@ -81,8 +84,8 @@ class GameObject
     {
         this.vertexUniformValues.set(this.modelMatrix, 0); // mModel
         this.vertexUniformValues.set(this.normalMatrix, 16); // mModel
-        this.vertexUniformValues.set(Scene.viewMatrix, 32); // mView
-        this.vertexUniformValues.set(Scene.projectionMatrix, 48); // mProjection
+        this.vertexUniformValues.set(ExternalScene.viewMatrix, 32); // mView
+        this.vertexUniformValues.set(ExternalScene.projectionMatrix, 48); // mProjection
         this.vertexUniformValues.set(this.jointMatrices, 68); // jointMatrices Array
         Main.device.queue.writeBuffer(this.vertexUniformBuffer, 0,this.vertexUniformValues);
     }

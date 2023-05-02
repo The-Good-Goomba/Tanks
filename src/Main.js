@@ -53,7 +53,7 @@ class Main
         Main.playerID = data.id;
         data = await ResourceLoader.loadJSONResource(`/initServer/${Main.playerID}`);
 
-        Scene.Initialise(data.projectionMatrix, data.viewMatrix, data.children);
+        ExternalScene.Initialise(data.projectionMatrix, data.viewMatrix, data.children);
         this.RunApp();
 
     };
@@ -78,9 +78,9 @@ class Main
     static async DoUpdate()
     {
         let data = await ResourceLoader.loadJSONResource(`/getGameData/${Main.playerID}`);
-        Scene.viewMatrix = Scene.decodeFloat32Array(data.viewMatrix);
-        Scene.projectionMatrix = Scene.decodeFloat32Array(data.projectionMatrix);
-        Scene.update(data.children)
+        ExternalScene.viewMatrix = ExternalScene.decodeFloat32Array(data.viewMatrix);
+        ExternalScene.projectionMatrix = ExternalScene.decodeFloat32Array(data.projectionMatrix);
+        ExternalScene.update(data.children)
 
         const sampleCount = 1;
         const newDepthTexture = Main.device.createTexture({
@@ -107,7 +107,7 @@ class Main
         };
         const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 
-        Scene.render(passEncoder);
+        ExternalScene.render(passEncoder);
 
         passEncoder.end();
         Main.device.queue.submit([commandEncoder.finish()]);
