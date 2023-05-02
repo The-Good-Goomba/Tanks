@@ -11,6 +11,8 @@ class Main
     static colourFormat;
     static playerID;
 
+    static sceneManager;
+
     static get frameRate()
     {
         return Main.#frameRate;
@@ -53,7 +55,8 @@ class Main
         Main.playerID = data.id;
         data = await ResourceLoader.loadJSONResource(`/initServer/${Main.playerID}`);
 
-        ExternalScene.Initialise(data.projectionMatrix, data.viewMatrix, data.children);
+
+        this.sceneManager = SceneManager(SceneTypes.titleScene);
         this.RunApp();
 
     };

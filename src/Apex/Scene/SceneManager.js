@@ -8,15 +8,12 @@ const SceneTypes =
 class SceneManager
 {
     #currentScene;
-    sceneID;
 
     players = [];
 
-    constructor(type, id)
+    constructor(type)
     {
         this.setScene(type)
-        this.sceneID = id;
-        this.#currentScene.sceneID = id;
     }
 
     currentScene = () =>
