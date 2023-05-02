@@ -34,23 +34,7 @@ class ExternalScene
             }
         }
 
-        let data = {
-            a: Keyboard.isKeyDown('a') || false,
-            s: Keyboard.isKeyDown('s') || false,
-            w: Keyboard.isKeyDown('w') || false,
-            d: Keyboard.isKeyDown('d') || false,
-            mousePos: Mouse.mousePos ?? [0.5,0.5],
-            leftMouse: Mouse.isMouseButtonDown(0) || false,
-            rightMouse: Mouse.isMouseButtonDown(1) || false,
-            playerID: Main.playerID,
-        }
-        fetch('/post', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
+
 
     }
     render(renderEncoder) {

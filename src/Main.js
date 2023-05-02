@@ -51,12 +51,7 @@ class Main
 
         await Engine.Initialise();
 
-        let data = await ResourceLoader.loadJSONResource('/start');
-        Main.playerID = data.id;
-        data = await ResourceLoader.loadJSONResource(`/initServer/${Main.playerID}`);
-
-
-        this.sceneManager = SceneManager(SceneTypes.titleScene);
+        this.sceneManager = SceneManager(SceneTypes.mainGame);
         this.RunApp();
 
     };
@@ -67,7 +62,7 @@ class Main
         let loop = () =>
         {
             let begin = new Date()
-            Main.DoUpdate();
+            this.sceneManager.doUpdate()
             let timeTaken = (new Date()) - begin;
 
             setTimeout( () =>{
@@ -76,44 +71,6 @@ class Main
         }
         requestAnimationFrame(loop);
 
-    }
-
-    static async DoUpdate()
-    {
-        let data = await ResourceLoader.loadJSONResource(`/getGameData/${Main.playerID}`);
-        ExternalScene.viewMatrix = ExternalScene.decodeFloat32Array(data.viewMatrix);
-        ExternalScene.projectionMatrix = ExternalScene.decodeFloat32Array(data.projectionMatrix);
-        ExternalScene.update(data.children)
-
-        const sampleCount = 1;
-        const newDepthTexture = Main.device.createTexture({
-            size: [Main.canvas.width, Main.canvas.height],
-            format: 'depth24plus',
-            sampleCount,
-            usage: GPUTextureUsage.RENDER_ATTACHMENT,
-        });
-        const commandEncoder = Main.device.createCommandEncoder();
-        const renderPassDescriptor = {
-            colorAttachments: [{
-                clearValue: Main.clearColour,
-                loadOp: 'clear',
-                storeOp: 'store',
-                view: Main.context.getCurrentTexture().createView()
-            }],
-            depthStencilAttachment: {
-                view: newDepthTexture.createView(),
-                depthClearValue: 1,
-                depthLoadOp: 'clear',
-                depthStoreOp: 'store',
-            },
-
-        };
-        const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-
-        ExternalScene.render(passEncoder);
-
-        passEncoder.end();
-        Main.device.queue.submit([commandEncoder.finish()]);
     }
 
 }

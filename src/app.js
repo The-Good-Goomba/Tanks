@@ -9,9 +9,13 @@ const start = () =>
     importCode('/src/Libraries/TextureLibrary.js');
     importCode('/src/Libraries/ShaderLibrary.js');
     importCode('/src/Apex/GameObject.js');
-    importCode('/src/Apex/Scene.js');
     importCode('/src/Object2D.js');
-    importCode('/src/SpriteRenderer.js');
+    importCode('/src/Apex/Scene/SpriteRenderer.js');
+    importCode('/src/Apex/Scene/TankScene.js');
+    importCode('/src/Apex/Scene/TitleScene.js');
+    importCode('/src/Apex/Scene/SceneManager.js');
+    importCode('/src/Apex/Scene/ExternalScene.js');
+
 
     // Waits for the code to load
     setTimeout(() => {
