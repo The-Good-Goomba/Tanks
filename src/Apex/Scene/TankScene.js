@@ -1,22 +1,23 @@
 
 class TankScene extends ExternalScene
 {
-    constructor() {
-        super();
-        (async () => {
-            let data = await ResourceLoader.loadJSONResource('/start');
-            Main.playerID = data.id;
-            data = await ResourceLoader.loadJSONResource(`/initServer/${Main.playerID}`);
-            this.Initialise(data.projectionMatrix, data.viewMatrix, data.children);
-        })()
+
+    playerID;
+    async Initialise(codeBlock)
+    {
+        let data = await ResourceLoader.loadJSONResource('/start');
+        this.playerID = data.id;
+        data = await ResourceLoader.loadJSONResource(`/initServer/${this.playerID}`);
+        super.Initialise(data.projectionMatrix, data.viewMatrix, data.children);
+        if (typeof codeBlock === 'function') { codeBlock(); }
     }
 
-    async update(children) {
-
-        let data = await ResourceLoader.loadJSONResource(`/getGameData/${Main.playerID}`);
+    async update() {
+        if (this.playerID === undefined) { return; }
+        let data = await ResourceLoader.loadJSONResource(`/getGameData/${this.playerID}`);
         this.viewMatrix = ExternalScene.decodeFloat32Array(data.viewMatrix);
         this.projectionMatrix = ExternalScene.decodeFloat32Array(data.projectionMatrix);
-        super.update(children);
+        super.update(data.children);
 
         data = {
             a: Keyboard.isKeyDown('a') || false,
@@ -26,8 +27,9 @@ class TankScene extends ExternalScene
             mousePos: Mouse.mousePos ?? [0.5,0.5],
             leftMouse: Mouse.isMouseButtonDown(0) || false,
             rightMouse: Mouse.isMouseButtonDown(1) || false,
-            playerID: Main.playerID,
+            playerID: this.playerID,
         }
+
         fetch('/post', {
             method: 'POST',
             headers: {

@@ -1,30 +1,24 @@
-let i = 0
-const SceneTypes =
-{
-    titleScene: i++,
-    mainGame: i++
-}
 
 class SceneManager
 {
     #currentScene;
 
-    constructor(type)
-    {
-        this.setScene(type)
+    constructor(type, finishCode) {
+        this.setScene(type, finishCode);
     }
-
     currentScene = () =>
     {
         return this.#currentScene
     }
 
-    setScene = (type) =>
+    setScene = async (type, finishCode) =>
     {
         switch (type)
         {
             case SceneTypes.mainGame:
                 this.#currentScene = new TankScene();
+                await this.#currentScene.Initialise(finishCode);
+                break;
         }
     }
 

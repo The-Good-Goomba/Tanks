@@ -19,13 +19,13 @@ struct RasteriserData {
 }
 
 const QUAD = array(
-    vec2(0.,0.),
-    vec2(1.,0.),
-    vec2(0.,1.),
+    vec2f(0.,0.),
+    vec2f(1.,0.),
+    vec2f(0.,1.),
 
-    vec2(0.,1.),
-    vec2(1.,0.),
-    vec2(1.,1.)
+    vec2f(0.,1.),
+    vec2f(1.,0.),
+    vec2f(1.,1.)
 );
 
 
@@ -34,7 +34,7 @@ fn spriteVertex_main(@location(0) instance: Instance,
                      @builtin(vertex_index) vID: u32) -> RasteriserData
 {
     var rd: RasteriserData;
-    rd.pos = vec4f((QUAD[vID] * instance.size + instance.pos.xy), 0.9 * sign(instance.pos.z) + instance.pos.z, 1.0);
+    rd.pos = vec4((QUAD[vID] * instance.size + instance.pos.xy), 0.9 * sign(instance.pos.z) + instance.pos.z, 1.0);
     rd.texCoords = (QUAD[vID] * instance.spriteInfo.size + instance.spriteInfo.pos)
     return rd;
 }

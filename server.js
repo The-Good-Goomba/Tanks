@@ -73,6 +73,7 @@ const server = http.createServer((request, response) => {
                         leftMouse: false,
                         rightMouse: false,
                     }
+                    console.log("Started server");
                     Main().gameInstances[serverId].addPlayer(argument);
                     data = Main().gameInstances[serverId].currentScene().dataToSend;
                     response.end(data);
@@ -115,12 +116,8 @@ const server = http.createServer((request, response) => {
 
         if (fileExt === 'html') {
             fs.exists(fileUrl, (exists) => {
-                if (!exists) {
-                    response.statusCode = 404;
-                    response.setHeader('Content-Type', 'text/html');
-                    response.end("Uh Oh, Stinky! No page found.");
-                    console.log("Uh oh");
-                } else {
+                if (!exists) { sendError(response) }
+                else {
                     response.setHeader('Content-Type', 'text/html');
                     fs.createReadStream(fileUrl).pipe(response);
                 }
@@ -145,11 +142,7 @@ const server = http.createServer((request, response) => {
             response.setHeader('Content-Type', 'application/json');
             fs.createReadStream(fileUrl).pipe(response);
         }
-        else {
-            response.statusCode = 404;
-            response.setHeader('Content-Type', 'text/html');
-            response.end("Uh Oh, Stinky! No page found.")
-        }
+        else { sendError(response); }
 
     }
 
@@ -163,6 +156,7 @@ const server = http.createServer((request, response) => {
             let obj = JSON.parse(body);
             let id = obj.playerID;
             delete obj.playerID
+            if (id === undefined) { sendError(response); console.log(`ID is undefined`); return;}
             Main().players[id].input = obj;
             response.writeHead(200, {'Content-Type': 'text/html'})
             response.end('post received')
@@ -170,6 +164,12 @@ const server = http.createServer((request, response) => {
     }
 
 });
+
+let sendError = (response) => {
+    response.statusCode = 404;
+    response.setHeader('Content-Type', 'text/html');
+    response.end("Uh Oh, Stinky! No page found.")
+}
 
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);

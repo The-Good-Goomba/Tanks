@@ -1,21 +1,21 @@
 const { mat4 } = glMatrix;
 
-const start = () =>
+const start = async () =>
 {
-    importCode('/src/Main.js');
-    importCode('/src/Engine.js');
-    importCode('/src/Libraries/ResourceLoader.js');
-    importCode('/src/Libraries/ModelLibrary.js');
-    importCode('/src/Libraries/TextureLibrary.js');
-    importCode('/src/Libraries/ShaderLibrary.js');
-    importCode('/src/Apex/GameObject.js');
-    importCode('/src/Object2D.js');
-    importCode('/src/Apex/Scene/SpriteRenderer.js');
-    importCode('/src/Apex/Scene/TankScene.js');
-    importCode('/src/Apex/Scene/TitleScene.js');
-    importCode('/src/Apex/Scene/SceneManager.js');
-    importCode('/src/Apex/Scene/ExternalScene.js');
-
+    await importCode('/src/Main.js');
+    await importCode('/src/Engine.js');
+    await importCode('/src/Libraries/Types.js');
+    await importCode('/src/Libraries/ResourceLoader.js');
+    await importCode('/src/Libraries/ModelLibrary.js');
+    await importCode('/src/Libraries/TextureLibrary.js');
+    await importCode('/src/Libraries/ShaderLibrary.js');
+    await importCode('/src/Apex/GameObject.js');
+    await importCode('/src/Object2D.js');
+    await importCode('/src/Apex/Scene/SpriteRenderer.js');
+    await importCode('/src/Apex/Scene/ExternalScene.js');
+    await importCode('/src/Apex/Scene/TankScene.js');
+    await importCode('/src/Apex/Scene/TitleScene.js');
+    await importCode('/src/Apex/Scene/SceneManager.js');
 
     // Waits for the code to load
     setTimeout(() => {
@@ -25,11 +25,17 @@ const start = () =>
 
 const importCode = (url) =>
 {
-    let head = document.getElementsByTagName('head')[0];
-    let script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = url;
-    head.appendChild(script);
+    return new Promise((resolve) => {
+        let script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = url;
+        script.async = false;
+        script.addEventListener('load', () => {
+            resolve();
+        });
+        document.head.appendChild(script);
+    })
+
 }
 
 

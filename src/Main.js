@@ -9,7 +9,6 @@ class Main
     static wiggleRoom = 0.001;
     static #frameRate = 60;
     static colourFormat;
-    static playerID;
 
     static sceneManager;
 
@@ -51,9 +50,7 @@ class Main
 
         await Engine.Initialise();
 
-        this.sceneManager = SceneManager(SceneTypes.mainGame);
-        this.RunApp();
-
+        this.sceneManager = new SceneManager(SceneTypes.mainGame, this.RunApp());
     };
 
     static RunApp()
