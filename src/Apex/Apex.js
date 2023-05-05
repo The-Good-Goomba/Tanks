@@ -1,17 +1,18 @@
-
 class Apex
 {
-    viewMatrix = mat4.create();
-    projectionMatrix = mat4.create();
-    serverID;
-    name;
 
     #rotation = [0,0,0];
     #position = [0,0,0];
     #scale = [1,1,1];
     #quaternion = quat.create();
 
+    #name;
+
+    toRender = true;
     parentModelMatrix = mat4.create();
+
+    viewMatrix = mat4.create();
+    projectionMatrix = mat4.create();
 
     #modelMatrix = mat4.create();
 
@@ -39,9 +40,14 @@ class Apex
 
     constructor(name = "Apex")
     {
-        this.name = name;
+        this.#name = name;
         quat.fromEuler(this.#quaternion, this.#rotation[0], this.#rotation[1], this.#rotation[2]);
         this.updateModelMatrix();
+    }
+
+    getName()
+    {
+        return this.#name
     }
 
     get children()
@@ -66,16 +72,25 @@ class Apex
         this.doUpdate()
         for (let child of this.#children)
         {
-            if (child instanceof Apex) {
-                child.parentModelMatrix = this.#modelMatrix;
-                child.viewMatrix = this.viewMatrix;
-                child.projectionMatrix = this.projectionMatrix;
-                child.serverID = this.serverID;
-                child.update()
-            }
+            child.parentModelMatrix = this.#modelMatrix
+            child.viewMatrix = this.viewMatrix
+            child.projectionMatrix = this.projectionMatrix
+
+            child.update()
         }
     }
 
+    doRender(renderCommandEncoder) { }
+
+    render(renderCommandEncoder)
+    {
+        if (this.toRender) { this.doRender(renderCommandEncoder) }
+
+        for (let child of this.#children)
+        {
+            child.render(renderCommandEncoder)
+        }
+    }
 
 
 
