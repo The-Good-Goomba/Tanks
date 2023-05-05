@@ -20,7 +20,7 @@ class Scene extends Apex
 
     addSprite(sprite)
     {
-        this.spriteRenderer.sprite.push(sprite);
+        this.spriteRenderer.sprites.push(sprite);
     }
 
 }

@@ -21,7 +21,7 @@ class SceneManager
                 break;
             case SceneTypes.titleScene:
                 this.#currentScene = new TitleScene();
-                finishCode();
+                if (typeof finishCode === 'function') { finishCode(); }
                 break;
         }
     }

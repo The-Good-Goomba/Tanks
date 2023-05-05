@@ -1,4 +1,4 @@
-const { mat4 } = glMatrix;
+const { mat4, quat } = glMatrix;
 
 const start = async () =>
 {
@@ -9,8 +9,11 @@ const start = async () =>
     await importCode('/src/Libraries/ModelLibrary.js');
     await importCode('/src/Libraries/TextureLibrary.js');
     await importCode('/src/Libraries/ShaderLibrary.js');
+    await importCode('/src/Apex/Apex.js');
+    await importCode('/src/Apex/ModelObject.js');
     await importCode('/src/Apex/GameObject.js');
-    await importCode('/src/Object2D.js');
+    await importCode('/src/Apex/Object2D.js');
+    await importCode('/src/Apex/Scene/Scene.js');
     await importCode('/src/Apex/Scene/SpriteRenderer.js');
     await importCode('/src/Apex/Scene/ExternalScene.js');
     await importCode('/src/Apex/Scene/TankScene.js');

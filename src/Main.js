@@ -50,7 +50,7 @@ class Main
 
         await Engine.Initialise();
 
-        this.sceneManager = new SceneManager(SceneTypes.titleScene, this.RunApp());
+        this.sceneManager = new SceneManager(SceneTypes.titleScene, Main.RunApp());
     };
 
     static RunApp()
