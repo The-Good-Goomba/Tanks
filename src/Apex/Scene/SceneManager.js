@@ -22,8 +22,8 @@ class SceneManager
         }
     }
 
-    doUpdate = ()=> {
-        this.#currentScene.update()
+    doUpdate = async ()=> {
+        await this.#currentScene.update();
 
         const sampleCount = 1;
         const newDepthTexture = Main.device.createTexture({

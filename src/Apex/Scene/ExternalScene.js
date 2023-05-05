@@ -55,7 +55,7 @@ class ExternalScene
     addChild(child)
     {
         if (child.dimensions === 1) {
-            this.gameObjects[child.id] = new GameObject(child.id,child.model,child.sprite);
+            this.gameObjects[child.id] = new ModelObject(child.model,child.sprite);
             this.gameObjects[child.id].modelMatrix = ExternalScene.decodeFloat32Array(child.modelMatrix);
             this.gameObjects[child.id].jointMatrices = ExternalScene.decodeFloat32Array(child.jointMatrices) ?? mat4.create();
         }
