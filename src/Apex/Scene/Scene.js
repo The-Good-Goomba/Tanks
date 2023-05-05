@@ -18,4 +18,9 @@ class Scene extends Apex
         this.spriteRenderer.doRender(renderCommandEncoder);
     }
 
+    addSprite(sprite)
+    {
+        this.spriteRenderer.sprite.push(sprite);
+    }
+
 }

@@ -19,6 +19,10 @@ class SceneManager
                 this.#currentScene = new TankScene();
                 await this.#currentScene.Initialise(finishCode);
                 break;
+            case SceneTypes.titleScene:
+                this.#currentScene = new TitleScene();
+                finishCode();
+                break;
         }
     }
 
