@@ -1,22 +1,16 @@
 
-
-struct SpriteSheetInfo
-{
-    pos: vec2f,
-    size: vec2f
-};
-
 struct Instance
 {
-    pos: vec3f,
-    size: vec2f,
-    spriteInfo: SpriteSheetInfo
-}
+    @location(0) pos: vec3f,
+    @location(1) size: vec2f,
+    @location(2) ssPos: vec2f,
+    @location(3) ssSize: vec2f
+};
 
 struct RasteriserData {
     @builtin(position) position : vec4f,
     @location(0) texCoords : vec2f
-}
+};
 
 const QUAD = array(
     vec2f(0.,0.),
@@ -30,17 +24,17 @@ const QUAD = array(
 
 
 @vertex
-fn spriteVertex_main(@location(0) instance: Instance,
+fn spriteVertex_main(instance: Instance,
                      @builtin(vertex_index) vID: u32) -> RasteriserData
 {
     var rd: RasteriserData;
-    rd.pos = vec4((QUAD[vID] * instance.size + instance.pos.xy), 0.9 * sign(instance.pos.z) + instance.pos.z, 1.0);
-    rd.texCoords = (QUAD[vID] * instance.spriteInfo.size + instance.spriteInfo.pos)
+    rd.position = vec4f((QUAD[vID] * instance.size + instance.pos.xy), 0.9 * sign(instance.pos.z) + instance.pos.z, 1.0);
+    rd.texCoords = QUAD[vID] * instance.ssSize + instance.ssPos;
     return rd;
 }
 
 @group(0) @binding(0) var textureSampler: sampler;
-@group(0) @binding(1) var texture: array<texture_2d<f32>,2>;
+@group(0) @binding(1) var texture: texture_2d<f32>;
 
 @fragment
 fn spriteFragment_main(rd: RasteriserData) -> @location(0) vec4f

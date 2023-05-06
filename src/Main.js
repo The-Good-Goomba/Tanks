@@ -19,7 +19,7 @@ class Main
 
     static get deltaTime()
     {
-        return 1/Main.frameRate;
+        return 1/Main.#frameRate;
     }
 
     static async InitApp() {
@@ -50,7 +50,7 @@ class Main
 
         await Engine.Initialise();
 
-        this.sceneManager = new SceneManager(SceneTypes.titleScene, Main.RunApp());
+        Main.sceneManager = new SceneManager(SceneTypes.titleScene, Main.RunApp);
     };
 
     static RunApp()
@@ -59,12 +59,12 @@ class Main
         let loop = () =>
         {
             let begin = new Date()
-            this.sceneManager.doUpdate()
+            Main.sceneManager.doUpdate()
             let timeTaken = (new Date()) - begin;
 
             setTimeout( () =>{
                 requestAnimationFrame(loop);
-            }, (1000 / this.frameRate) - timeTaken)
+            }, (1000 / Main.frameRate) - timeTaken)
         }
         requestAnimationFrame(loop);
 

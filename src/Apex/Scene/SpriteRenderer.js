@@ -1,7 +1,19 @@
 
 class SpriteRenderer
 {
-    sprites = [];
+    #sprites = [];
+
+    addSprite(x) {
+         this.#sprites.push(x);
+         this.updateBufferLength();
+    }
+    updateBufferLength()
+    {
+        this.#instanceBuffer = Main.device.createBuffer({
+            size: (9 * 4 * this.#sprites.length),
+            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+        });
+    }
 
     #renderPipeline;
 
@@ -44,25 +56,25 @@ class SpriteRenderer
 
     updateInstances()
     {
-        this.#instanceValues =   new Float32Array(8 * this.sprites.length);
+        this.#instanceValues =   new Float32Array(9 * this.#sprites.length);
         let i = 0
-        for (let sprite in this.sprites)
+        for (let sprite of this.#sprites)
         {
             this.#instanceValues.set(sprite.instanceData, i);
-            i += 8;
+            i += 9;
         }
         Main.device.queue.writeBuffer(this.#instanceBuffer, 0, this.#instanceValues);
     }
 
     doRender(renderEncoder)
     {
-        if (this.sprites.length === 0) { return; }
+        if (this.#sprites.length === 0) { return; }
         this.updateInstances()
-
-        renderEncoder.setVertexbuffer(0,this.#instanceBuffer);
+        renderEncoder.setPipeline(this.#renderPipeline);
+        renderEncoder.setVertexBuffer(0,this.#instanceBuffer);
         renderEncoder.setBindGroup(0, this.bindGroup);
 
-        renderEncoder.draw(6,this.sprites.length);
+        renderEncoder.draw(6,this.#sprites.length);
     }
 
 }

@@ -10,7 +10,6 @@ class Scene extends Apex
         mat4.identity(this.viewMatrix);
         mat4.identity(this.projectionMatrix);
         this.spriteRenderer = new SpriteRenderer();
-
     }
 
     render(renderCommandEncoder) {
@@ -20,7 +19,7 @@ class Scene extends Apex
 
     addSprite(sprite)
     {
-        this.spriteRenderer.sprites.push(sprite);
+        this.spriteRenderer.addSprite(sprite);
     }
 
 }

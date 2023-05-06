@@ -5,6 +5,7 @@ class Object2D
     size = [0.5,0.5];
     zIndex = 0.0;
     sprite;
+    // tileAmount = [1,1];
 
     constructor(type)
     {
@@ -13,7 +14,7 @@ class Object2D
 
     get instanceData()
     {
-        return new Float32Array(...this.position,...this.size,...this.sprite.pos,...this.sprite.size)
+        return new Float32Array([...this.position,this.zIndex,...this.size,...this.sprite.pos,...this.sprite.size]);
     }
 
     move(amount)

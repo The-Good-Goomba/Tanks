@@ -4,6 +4,11 @@ const VertexShaderTypes = {
     default: {func: 'vertex_main', code: 0},
     sprite: {func: 'spriteVertex_main', code:1}
 }
+const FragmentShaderTypes = {
+    default: {func:'fragment_main', code:0},
+    sprite: {func: 'spriteFragment_main', code:1}
+}
+
 
 const VertexDescriptorTypes = {
     None: [],
@@ -61,22 +66,14 @@ const VertexDescriptorTypes = {
                 shaderLocation: 3, // Sprite Pos
                 offset: 28,
                 format: 'float32x2'
-            }, {
-                shaderLocation: 4, // Sprite index
-                offset: 36,
-                format: 'uint32'
             }],
-            arrayStride: 40,
+            arrayStride: 36,
             stepMode: 'instance'
         }
     ]
 
 }
 
-const FragmentShaderTypes = {
-    default: {func:'fragment_main', code:0},
-    sprite: {func: 'spriteFragment_main', code:1}
-}
 
 
 class ShaderLibrary
