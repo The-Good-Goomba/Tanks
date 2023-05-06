@@ -2,6 +2,7 @@ const { mat4, quat } = glMatrix;
 
 const start = async () =>
 {
+    await importCode('/src/Utility/Meth.js');
     await importCode('/src/Main.js');
     await importCode('/src/Engine.js');
     await importCode('/src/Libraries/Types.js');
@@ -21,9 +22,7 @@ const start = async () =>
     await importCode('/src/Apex/Scene/SceneManager.js');
 
     // Waits for the code to load
-    setTimeout(() => {
-        Main.InitApp();
-    },1000)
+    Main.InitApp();
 }
 
 const importCode = (url) =>
