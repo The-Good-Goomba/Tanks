@@ -8,6 +8,8 @@ class Main
     static clearColour = { r: 0.0, g: 0.0, b: 0.0, a: 1.0 };
     static wiggleRoom = 0.001;
     static #frameRate = 60;
+    static #totalGameTime = 0;
+
     static colourFormat;
 
     static sceneManager;
@@ -20,6 +22,11 @@ class Main
     static get deltaTime()
     {
         return 1/Main.#frameRate;
+    }
+
+    static  get totalGameTime()
+    {
+        return Main.#totalGameTime;
     }
 
     static async InitApp() {
@@ -58,6 +65,7 @@ class Main
 
         let loop = () =>
         {
+            Main.#totalGameTime += Main.deltaTime;
             let begin = new Date()
             Main.sceneManager.doUpdate()
             let timeTaken = (new Date()) - begin;
