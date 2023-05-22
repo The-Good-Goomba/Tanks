@@ -5,6 +5,8 @@ const start = async () =>
     await importCode('/src/Utility/Meth.js');
     await importCode('/src/Main.js');
     await importCode('/src/Engine.js');
+    await importCode('/src/Collision/CollisionEntity.js');
+    await importCode('/src/Collision/CollisionEngine.js')
     await importCode('/src/Libraries/Types.js');
     await importCode('/src/Libraries/ResourceLoader.js');
     await importCode('/src/Libraries/ModelLibrary.js');

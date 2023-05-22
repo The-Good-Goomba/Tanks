@@ -9,6 +9,9 @@ class Engine
     static #shaderLibrary;
     static get shaderLibrary(){ return this.#shaderLibrary }
 
+    static #collisionEngine;
+    static get collisionEngine(){ return this.#collisionEngine }
+
     static async Initialise()
     {
         return new Promise(async (resolve) => {
@@ -18,6 +21,7 @@ class Engine
             await Engine.#modelLibrary.Initialise();
             Engine.#shaderLibrary = new ShaderLibrary();
             await Engine.#shaderLibrary.Initialise();
+            Engine.#collisionEngine = new CollisionEngine();
             resolve();
         });
 

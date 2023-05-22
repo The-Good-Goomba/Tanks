@@ -1,19 +1,19 @@
 
 class CollisionEntity
 {
-    position;
-    velocity;
-    newVelocity;
 
-    type;
+    velocity;
+    maxBounds;
+    minBounds;
+
     elastic = false;
-    didCollide = false;
+    didCollide = false; // Used outside the code loop
     
-    constructor(position, velocity, type)
+    constructor(velocity)
     {
-        this.position = position;
         this.velocity = velocity;
-        this.type = type;
     }
 
 }
+
+
