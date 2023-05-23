@@ -18,8 +18,6 @@ class CollisionEngine
     {
         if (rect1.velocity === [0,0] && rect2.velocity === [0,0]) { return; }
 
-        // Collide moving in the x direction
-        let dist = [0,0];
 
         let before = [
             rect1.maxBounds[0] > rect2.minBounds[0],
