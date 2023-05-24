@@ -40,6 +40,7 @@ fn vertex_main(vIn: Vertex) -> RasterizerData
      
     output.position = vertexUniforms.mProjection * vertexUniforms.mView * vertexUniforms.mModel
                     * vertexUniforms.jointMatrices[vIn.group] * vec4f(vIn.position, 1.0);
+    output.position.z *= 1.0;
     var norm = vertexUniforms.jointMatrices[vIn.group] * vec4f(vIn.normal, 1.0);
     var normalMat = mat3x3f(vertexUniforms.mNormal[0].xyz, vertexUniforms.mNormal[1].xyz, vertexUniforms.mNormal[2].xyz);
     output.normal = normalMat * norm.xyz;

@@ -29,7 +29,7 @@ fn spriteVertex_main(instance: Instance,
 {
     var rd: RasteriserData;
     rd.position = vec4f((QUAD[vID] * instance.size + instance.pos.xy), 0.9 * sign(instance.pos.z) + instance.pos.z * 0.1, 1.0);
-    rd.texCoords = QUAD[vID] * instance.ssSize + instance.ssPos;
+    rd.texCoords = vec2f(QUAD[vID].x,1 - QUAD[vID].y) * instance.ssSize + instance.ssPos;
     return rd;
 }
 
@@ -40,6 +40,6 @@ fn spriteVertex_main(instance: Instance,
 fn spriteFragment_main(rd: RasteriserData) -> @location(0) vec4f
 {
     let sus = textureSample(texture, textureSampler, rd.texCoords);
-    if (sus.w <= 0.5) { discard; }
+    if (sus.w <= 0.1) { discard; }
     return sus;
 }

@@ -4,6 +4,7 @@ class TitleScene extends Scene
     floor;
     tank;
     title;
+    test;
 
     constructor() {
         super();
@@ -24,6 +25,10 @@ class TitleScene extends Scene
         this.title.zIndex = 0.9;
         this.title.text = "Tanks!";
 
+        this.test = new Object2D(SpriteTypes.blueCross);
+        this.test.pos = [0.5,0.5]
+
+        this.addSprite(this.test);
         this.addText(this.title);
         this.addChild(this.floor);
         this.addChild(this.tank);
@@ -33,5 +38,6 @@ class TitleScene extends Scene
         super.doUpdate();
         this.tank.rotate(0,0.01,0);
         this.tank.setPositionY(Math.sin(Main.totalGameTime) * 0.5 - 5);
+
     }
 }
