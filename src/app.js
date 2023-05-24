@@ -15,9 +15,11 @@ const start = async () =>
     await importCode('/src/Apex/Apex.js');
     await importCode('/src/Apex/ModelObject.js');
     await importCode('/src/Apex/GameObject.js');
-    await importCode('/src/Apex/Object2D.js');
+    await importCode('/src/Sprites/Object2D.js');
     await importCode('/src/Apex/Scene/Scene.js');
-    await importCode('/src/Apex/Scene/SpriteRenderer.js');
+    await importCode('/src/Sprites/SpriteRenderer.js');
+    await importCode('/src/Sprites/TextRenderer.js');
+    await importCode('/src/Sprites/TextSprite.js');
     await importCode('/src/Apex/Scene/ExternalScene.js');
     await importCode('/src/Apex/Scene/TankScene.js');
     await importCode('/src/Apex/Scene/TitleScene.js');

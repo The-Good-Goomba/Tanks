@@ -10,6 +10,7 @@ class TextRenderer extends SpriteRenderer
         this.#textCanvas = canvas.getContext("2d");
         this.#textCanvas.textAlign = "center";
         this.#textCanvas.textBaseline = "middle";
+        console.log(this.#textCanvas.width);
     }
 
 
