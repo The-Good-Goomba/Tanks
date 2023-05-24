@@ -3,9 +3,9 @@
 class TextSprite extends Object2D
 {
     text = "SUS";
-    font = "Roboto";
+    font = "serif";
     fontSize = 48;
-    colour;
+    colour = "#ff0000";
     stroke;
     strokeColour;
 

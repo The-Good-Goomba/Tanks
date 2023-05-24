@@ -21,11 +21,10 @@ class TitleScene extends Scene
         this.tank.setPosition(0,-5,-5);
 
         this.title = new TextSprite();
-        this.title.zIndex = 1;
-        this.title.text = "BRUH";
+        this.title.zIndex = 0.9;
+        this.title.text = "Tanks!";
 
         this.addText(this.title);
-
         this.addChild(this.floor);
         this.addChild(this.tank);
     }
