@@ -39,8 +39,10 @@ class TextRenderer extends SpriteRenderer
     }
 
     updateInstances() {
-        super.updateInstances();
+
     //     MARK: MAKE THE SUPER TEXTURE
+    // Make the canvas + texture correct size
+        this.initBindGroups();
 
         // Draw all the things
         // Link: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/fillText
@@ -53,8 +55,6 @@ class TextRenderer extends SpriteRenderer
             sus.sprite = { pos: [(i % 5) * 128,Math.floor(i / 5) * 128], size: [128,128] };
 
             this.#textCanvas.font = `${sus.fontSize}px "${sus.font}"`;
-
-
             this.#textCanvas.fillText(sus.text,...sus.pos, 128);
 
             sus.pos[0]  /=  this.#textCanvas.width;
@@ -70,6 +70,7 @@ class TextRenderer extends SpriteRenderer
             { texture: this.#texture },
             [this.#textCanvas.width, this.#textCanvas.height]
         );
+        super.updateInstances();
     }
 
 }
