@@ -3,6 +3,7 @@ class TitleScene extends Scene
 {
     floor;
     tank;
+    title;
 
     constructor() {
         super();
@@ -17,7 +18,13 @@ class TitleScene extends Scene
 
         this.tank.setUniformScale(7);
         this.tank.setRotationZ(-0.01);
-        this.tank.setPosition(0,-5,-5)
+        this.tank.setPosition(0,-5,-5);
+
+        this.title = new TextSprite();
+        this.title.zIndex = 1;
+        this.title.text = "BRUH";
+
+        this.addText(this.title);
 
         this.addChild(this.floor);
         this.addChild(this.tank);

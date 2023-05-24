@@ -3,11 +3,15 @@
 class TextSprite extends Object2D
 {
     text = "SUS";
-    font;
-    fontSize;
+    font = "Roboto";
+    fontSize = 48;
     colour;
     stroke;
     strokeColour;
+
+    constructor() {
+        super(SpriteTypes.none);
+    }
 
 }
 
