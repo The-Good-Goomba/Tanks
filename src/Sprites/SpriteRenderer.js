@@ -34,7 +34,7 @@ class SpriteRenderer
             FragmentShaderTypes.sprite, VertexDescriptorTypes.Sprite);
 
         this.sampler = Main.device.createSampler({
-            magFilter: 'nearest',
+            magFilter: 'linear',
             minFilter: 'nearest',
         });
 

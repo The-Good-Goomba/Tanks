@@ -4,7 +4,8 @@ class TitleScene extends Scene
     floor;
     tank;
     title;
-    test;
+    startButton;
+
 
     constructor() {
         super();
@@ -21,14 +22,10 @@ class TitleScene extends Scene
         this.tank.setRotationZ(-0.01);
         this.tank.setPosition(0,-5,-5);
 
-        this.title = new TextSprite();
-        this.title.zIndex = 0.9;
-        this.title.text = "Tanks!";
+        this.title = new Title("TANKS");
+        this.startButton = new Button2D(SpriteTypes.cork,"start")
 
-        this.test = new Object2D(SpriteTypes.blueCross);
-        this.test.pos = [0.5,0.5]
-
-        this.addSprite(this.test);
+        this.addButton(this.startButton);
         this.addText(this.title);
         this.addChild(this.floor);
         this.addChild(this.tank);
@@ -39,5 +36,18 @@ class TitleScene extends Scene
         this.tank.rotate(0,0.01,0);
         this.tank.setPositionY(Math.sin(Main.totalGameTime) * 0.5 - 5);
 
+    }
+}
+
+class Title extends TextSprite
+{
+    constructor(word) {
+        super();
+        this.zIndex = 0.9;
+        this.text = word;
+        this.size = [0.7,1]
+        this.position = [-0.35,-0.3]
+        this.colour = "#5ac4f1"
+        this.stroke = 2;
     }
 }

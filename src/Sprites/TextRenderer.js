@@ -62,6 +62,12 @@ class TextRenderer extends SpriteRenderer
             this.#ctx.font = `bold ${sus.fontSize}px ${sus.font}`;
             this.#ctx.fillStyle = sus.colour;
             this.#ctx.fillText(sus.text,sus.sprite.pos[0] + 64,sus.sprite.pos[1] + 64, 128);
+            if (sus.stroke !== 0) {
+                this.#ctx.strokeStyle = sus.strokeColour;
+                this.#ctx.lineWidth = sus.stroke;
+                this.#ctx.strokeText(sus.text,sus.sprite.pos[0] + 64,sus.sprite.pos[1] + 64, 128);
+            }
+
 
             sus.sprite.pos[0]  /=  this.#canvas.width;
             sus.sprite.pos[1]  /=  this.#canvas.height;

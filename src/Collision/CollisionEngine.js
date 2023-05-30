@@ -77,4 +77,12 @@ class CollisionEngine
         }
     }
 
+    pointInRectangle(point, rect)
+    {
+        return (point[0] > rect.position[0] &&
+            point[0] < rect.position[0] + rect.size[0] &&
+            point[1] < rect.position[1] + rect.size[1] &&
+            point[1] > rect.position[1]);
+    }
+
 }

@@ -3,6 +3,7 @@ class Scene extends Apex
 {
     spriteRenderer;
     textRenderer;
+    buttonHandler;
 
     constructor()
     {
@@ -12,6 +13,7 @@ class Scene extends Apex
         mat4.identity(this.projectionMatrix);
         this.spriteRenderer = new SpriteRenderer();
         this.textRenderer = new TextRenderer();
+        this.buttonHandler = new ButtonHandler();
     }
 
     render(renderCommandEncoder) {
@@ -28,6 +30,16 @@ class Scene extends Apex
     addText(text)
     {
         this.textRenderer.addSprite(text);
+    }
+
+    addButton(button)
+    {
+        if (button instanceof Button2D) {
+            this.addSprite(button.sprite);
+            if (button.text) this.addText(button.text);
+            this.buttonHandler.addButton(button);
+
+        }
     }
 
 }

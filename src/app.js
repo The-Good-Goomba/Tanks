@@ -20,6 +20,8 @@ const start = async () =>
     await importCode('/src/Sprites/SpriteRenderer.js');
     await importCode('/src/Sprites/TextRenderer.js');
     await importCode('/src/Sprites/TextSprite.js');
+    await importCode('/src/Buttons/Button.js');
+    await importCode('/src/Buttons/ButtonHandler.js');
     await importCode('/src/Apex/Scene/ExternalScene.js');
     await importCode('/src/Apex/Scene/TankScene.js');
     await importCode('/src/Apex/Scene/TitleScene.js');
