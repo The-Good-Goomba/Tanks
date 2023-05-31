@@ -2,8 +2,10 @@
 class Button
 {
     isDown = false;
-    buttonDown = () => { }
-    buttonUp = (clicked) => {
+    buttonDown() { this.isDown = true; }
+    buttonUp(clicked)
+    {
+        this.isDown = false;
         if (clicked) this.pressHandler();
     }
     pressHandler = () => {} // Add your own stuff here
@@ -32,16 +34,22 @@ class Button2D extends Button
 
     }
 
-    buttonDown = () =>
+    buttonDown()
     {
         this.sprite.position[0] -= 0.01;
         this.sprite.position[1] -= 0.01;
+        this.text.position[0] -= 0.01;
+        this.text.position[1] -= 0.01;
         console.log("clicked")
+        super.buttonDown();
     }
 
-    buttonUp = (clicked) => {
+    buttonUp (clicked)
+    {
         this.sprite.position[0] += 0.01;
         this.sprite.position[1] += 0.01;
+        this.text.position[0] += 0.01;
+        this.text.position[1] += 0.01;
         super.buttonUp(clicked);
     }
 

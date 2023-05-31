@@ -4,7 +4,8 @@ class TitleScene extends Scene
     floor;
     tank;
     title;
-    startButton;
+    joinRoom;
+    enterCode;
 
 
     constructor() {
@@ -23,9 +24,9 @@ class TitleScene extends Scene
         this.tank.setPosition(0,-5,-5);
 
         this.title = new Title("TANKS");
-        this.startButton = new Button2D(SpriteTypes.cork,"start")
+        this.joinRoom = new Button2D(SpriteTypes.cork,"Join Room")
 
-        this.addButton(this.startButton);
+        this.addButton(this.joinRoom);
         this.addText(this.title);
         this.addChild(this.floor);
         this.addChild(this.tank);
