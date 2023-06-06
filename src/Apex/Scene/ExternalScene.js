@@ -4,11 +4,11 @@ class ExternalScene
     gameObjects = {};
     projectionMatrix;
     viewMatrix;
-    Initialise(proj, view, children)
+    Initialise(data)
     {
-        this.projectionMatrix = proj;
-        this.viewMatrix = view;
-        for (let child of children)
+        this.projectionMatrix = data.projectionMatrix;
+        this.viewMatrix = data.viewMatrix;
+        for (let child of data.children)
         {
             this.addChild(child)
         }

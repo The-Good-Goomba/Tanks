@@ -3,12 +3,21 @@ class TankScene extends ExternalScene
 {
 
     playerID;
-    async Initialise(codeBlock)
+    roomID;
+    async Initialise(codeBlock, createNew = true, serverID = undefined)
     {
         let data = await ResourceLoader.loadJSONResource('/start');
         this.playerID = data.id;
-        data = await ResourceLoader.loadJSONResource(`/initServer/${this.playerID}`);
-        super.Initialise(data.projectionMatrix, data.viewMatrix, data.children);
+        if (createNew) {
+            data = await ResourceLoader.loadJSONResource(`/initServer/${this.playerID}`);
+            this.roomID = data.serverID;
+        } else {
+            this.roomID = serverID;
+            await ResourceLoader.loadJSONResource(`/joinServer/${this.roomID}/${this.playerID}`);
+            data = await ResourceLoader.loadJSONResource(`/getGameData/${this.playerID}`);
+        }
+        super.Initialise(data);
+
         if (typeof codeBlock === 'function') { codeBlock(); }
     }
 
@@ -18,6 +27,8 @@ class TankScene extends ExternalScene
         this.viewMatrix = ExternalScene.decodeFloat32Array(data.viewMatrix);
         this.projectionMatrix = ExternalScene.decodeFloat32Array(data.projectionMatrix);
         super.update(data.children);
+
+        if (Keyboard.isKeyDown(' ')) console.log(this.roomID);
 
         data = {
             a: Keyboard.isKeyDown('a') || false,

@@ -76,8 +76,8 @@ const server = http.createServer((request, response) => {
                     console.log("Started server");
                     Main().gameInstances[serverId].addPlayer(argument);
                     data = Main().gameInstances[serverId].currentScene().dataToSend;
-                    response.end(data);
-
+                    data.serverID = serverId;
+                    response.end(JSON.stringify(data));
                     break;
                 case 'joinServer':
                     let sID = argument = fileUrl.split('/')[2];
@@ -102,7 +102,7 @@ const server = http.createServer((request, response) => {
                     break;
                 case 'getGameData':
                     argument = fileUrl.split('/')[2];
-                    response.end(Main().gameInstances[Main().players[argument].serverId].currentScene().dataToSend);
+                    response.end(JSON.stringify(Main().gameInstances[Main().players[argument].serverId].currentScene().dataToSend));
                     break;
             }
 

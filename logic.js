@@ -395,7 +395,7 @@ class Scene extends Apex
         };
         sus(this);
 
-        return JSON.stringify(data);
+        return data;
     }
 
     addPlayer(player) { this.players.push(player); }
@@ -627,14 +627,15 @@ class Tank extends Apex
             this.tankBody = new Cross(this.tankBody.getPosition());
             this.children[0] = this.tankBody;
         } else {
+
+            this.velocity = Meth.multiply2x1(Meth.normalise2(this.velocity), this.speed);
             for (let block of this.collidables)
             {
                 if (block !== this.tankBody && !(block instanceof Bullet)) { this.collideWithOther(block); }
             }
 
             if (Meth.magnitude(this.velocity) !== 0) {
-                const vel = Meth.multiply2x1(Meth.normalise2(this.velocity), this.speed);
-                this.tankBody.move(vel[0], 0, vel[1]);
+                this.tankBody.move(this.velocity[0], 0, this.velocity[1]);
                 let rot = Math.atan2(this.velocity[0], this.velocity[1]);
                 mat4.fromRotation(this.tankBody.jointMatrices[0], rot, [0, 1, 0]);
                 this.velocity = [0, 0];
