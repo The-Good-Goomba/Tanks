@@ -8,12 +8,14 @@ class Meth
     static normalise3 = ( v ) =>
     {
         const length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+        if (length === 0) {return [0,0]}
         return [v[0] / length, v[1] / length, v[2] / length];
     }
 
     static normalise2 = ( v ) =>
     {
         const length = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
+        if (length === 0) {return [0,0,0]}
         return [v[0] / length, v[1] / length];
     }
 
@@ -394,7 +396,6 @@ class Scene extends Apex
             }
         };
         sus(this);
-
         return data;
     }
 
@@ -432,7 +433,7 @@ class GameObject extends Apex
     constructor(name, type, sprite)
     {
         super(name);
-        this.id = Math.trunc(Math.random() * 1000);
+        this.id = Math.trunc(Math.random() * 10000);
         this.spriteType = sprite
         this.modelType = type;
 
@@ -549,31 +550,34 @@ class TankScene extends Scene
         this.addChild(this.floor);
 
         // Build the borders 23 x 17
-        let layout = StaticBlocks.getLayout("/src/stages.json");
-        layout.then((bruh) => {
-            for (let element of bruh)
-            {
-                let obj;
-                switch (element.type){
-                    case "spruceBlock": obj = StaticBlocks.spruceBlock(element.pos); break;
-                    case "oakBlock": obj = StaticBlocks.oakBlock(element.pos); break;
-                    case "balsaBlock": obj = StaticBlocks.balsaBlock(element.pos); break;
-                    case "oakTriangleBlock": obj = StaticBlocks.oakTriangleBlock(element.pos); break;
-                    case "balsaTriangleBlock": obj = StaticBlocks.balsaTriangleBlock(element.pos); break;
-                    case "oakHalfCylinder": obj = StaticBlocks.oakHalfCylinder(element.pos); break;
-                    case "balsaHalfCylinder": obj = StaticBlocks.balsaHalfCylinder(element.pos); break;
-                    case "shortBlock": obj = StaticBlocks.shortBlock(element.pos); break;
-                    case "bigShortBalsa": obj = StaticBlocks.bigShortBalsa(element.pos); break;
-                    case "bigOakBlock": obj = StaticBlocks.bigOakBlock(element.pos); break;
-                    case "bigBalsaBlock": obj = StaticBlocks.bigBalsaBlock(element.pos); break;
-                    case "tallBalsaBlock": obj = StaticBlocks.tallBalsaBlock(element.pos); break;
-                    case "longBigBlock": obj = StaticBlocks.longBigBlock(element.pos); break;
-                }
-                obj.rotate(element.rotation[0],element.rotation[1],element.rotation[2]);
-                this.addChild(obj);
-                this.collidables.push(obj);
+
+    }
+
+    async build()
+    {
+        let layout = await StaticBlocks.getLayout("/src/stages.json");
+        for (let element of layout)
+        {
+            let obj;
+            switch (element.type){
+                case "spruceBlock": obj = StaticBlocks.spruceBlock(element.pos); break;
+                case "oakBlock": obj = StaticBlocks.oakBlock(element.pos); break;
+                case "balsaBlock": obj = StaticBlocks.balsaBlock(element.pos); break;
+                case "oakTriangleBlock": obj = StaticBlocks.oakTriangleBlock(element.pos); break;
+                case "balsaTriangleBlock": obj = StaticBlocks.balsaTriangleBlock(element.pos); break;
+                case "oakHalfCylinder": obj = StaticBlocks.oakHalfCylinder(element.pos); break;
+                case "balsaHalfCylinder": obj = StaticBlocks.balsaHalfCylinder(element.pos); break;
+                case "shortBlock": obj = StaticBlocks.shortBlock(element.pos); break;
+                case "bigShortBalsa": obj = StaticBlocks.bigShortBalsa(element.pos); break;
+                case "bigOakBlock": obj = StaticBlocks.bigOakBlock(element.pos); break;
+                case "bigBalsaBlock": obj = StaticBlocks.bigBalsaBlock(element.pos); break;
+                case "tallBalsaBlock": obj = StaticBlocks.tallBalsaBlock(element.pos); break;
+                case "longBigBlock": obj = StaticBlocks.longBigBlock(element.pos); break;
             }
-        });
+            obj.rotate(element.rotation[0],element.rotation[1],element.rotation[2]);
+            this.addChild(obj);
+            this.collidables.push(obj);
+        }
     }
 
     addPlayer(player) {
@@ -581,6 +585,7 @@ class TankScene extends Scene
         let tank = new ControllableTank(SpriteTypes.blueTank, player)
         tank.tankBody.setUniformScale(5);
         tank.setCollidables(this.collidables);
+        tank.setPosition(0,-2,-2)
         this.addChild(tank);
         this.tanks.push(tank);
     }
@@ -734,7 +739,6 @@ class TankBody extends GameObject
     constructor(spriteType) {
         super("TankBody", ModelTypes.tank, spriteType);
         mat4.fromRotation(this.jointMatrices[0], Math.PI/2, [0,1,0]);
-
     }
 
 
@@ -742,7 +746,7 @@ class TankBody extends GameObject
 
 class ControllableTank extends Tank
 {
-    screenCoords = [0,0];
+    screenCoords = [0,0,0];
     linkedPlayer;
 
     constructor(spriteType, playerID)
@@ -752,7 +756,6 @@ class ControllableTank extends Tank
         this.tankBody.afterTranslation = () => {
             let bruh1 = mat4.create();
             mat4.mul(bruh1, this.projectionMatrix, this.viewMatrix);
-
             vec3.transformMat4(this.screenCoords, this.tankBody.getPosition(), bruh1);
             this.screenCoords[0] = ((this.screenCoords[0] + 1) / 2);
             this.screenCoords[1] = -1 * ((this.screenCoords[1] - 1) / 2);
@@ -792,6 +795,7 @@ class ControllableTank extends Tank
         let rot = Math.atan2((mousePos[1] - this.screenCoords[1]), (mousePos[0] - this.screenCoords[0]));
         rot -= Math.PI / 2;
         rot *= -1;
+        if (isNaN(rot)) { console.log("Not ok"); return; }
         mat4.fromRotation(this.tankBody.jointMatrices[1], rot, [0,1,0]);
     }
 }

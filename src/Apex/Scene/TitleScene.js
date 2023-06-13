@@ -38,6 +38,7 @@ class TitleScene extends Scene
             Main.sceneManager.setScene(SceneTypes.mainGame);
         }
 
+
         this.addButton(this.createRoom);
         this.addButton(this.joinRoom);
         this.addText(this.title);

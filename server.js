@@ -35,7 +35,7 @@ var Main = function () {
 }
 new Main();
 
-const server = http.createServer((request, response) => {
+const server = http.createServer(async (request, response) => {
     // console.log('Request for ' + request.url + ' by method ' + request.method);
 
     if (request.method === 'GET')
@@ -61,7 +61,7 @@ const server = http.createServer((request, response) => {
                     break;
                 case 'initServer':
                     let serverId = Math.trunc(Math.random() * 1000);
-                    Main().gameInstances[serverId] = new game.SceneManager(game.SceneTypes.mainGame, serverId);
+
                     argument = fileUrl.split('/')[2];
                     Main().players[argument] = {serverId: serverId}; // That player is now linked to the new server;
                     Main().players[argument].input = {
@@ -73,10 +73,13 @@ const server = http.createServer((request, response) => {
                         leftMouse: false,
                         rightMouse: false,
                     }
+                    Main().gameInstances[serverId] = new game.SceneManager(game.SceneTypes.mainGame, serverId);
+                    await Main().gameInstances[serverId].currentScene().build();
                     console.log("Started server");
                     Main().gameInstances[serverId].addPlayer(argument);
                     data = Main().gameInstances[serverId].currentScene().dataToSend;
                     data.serverID = serverId;
+                    console.log(data.children);
                     response.end(JSON.stringify(data));
                     break;
                 case 'joinServer':
@@ -102,7 +105,8 @@ const server = http.createServer((request, response) => {
                     break;
                 case 'getGameData':
                     argument = fileUrl.split('/')[2];
-                    response.end(JSON.stringify(Main().gameInstances[Main().players[argument].serverId].currentScene().dataToSend));
+                    let sus = JSON.stringify(Main().gameInstances[Main().players[argument].serverId].currentScene().dataToSend);
+                    response.end(sus);
                     break;
             }
 

@@ -33,11 +33,9 @@ class ExternalScene
                 delete this.gameObjects[sus]
             }
         }
-
-
-
     }
     render(renderEncoder) {
+        console.log("RENDERING")
         for (let childName in this.gameObjects)
         {
             this.gameObjects[childName].doRender(renderEncoder);

@@ -95,7 +95,6 @@ class ModelObject
         this.rebuildUniformBuffers();
 
         if (this.bindGroup == null) { return; }
-
         renderCommandEncoder.setPipeline(this.#renderPipeline);
 
         renderCommandEncoder.setVertexBuffer(0, this.mesh.positions);
