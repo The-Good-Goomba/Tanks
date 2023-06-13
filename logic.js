@@ -585,7 +585,6 @@ class TankScene extends Scene
         let tank = new ControllableTank(SpriteTypes.blueTank, player)
         tank.tankBody.setUniformScale(5);
         tank.setCollidables(this.collidables);
-        tank.setPosition(0,-2,-2)
         this.addChild(tank);
         this.tanks.push(tank);
     }
@@ -632,7 +631,6 @@ class Tank extends Apex
             this.tankBody = new Cross(this.tankBody.getPosition());
             this.children[0] = this.tankBody;
         } else {
-
             this.velocity = Meth.multiply2x1(Meth.normalise2(this.velocity), this.speed);
             for (let block of this.collidables)
             {

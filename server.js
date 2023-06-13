@@ -79,7 +79,6 @@ const server = http.createServer(async (request, response) => {
                     Main().gameInstances[serverId].addPlayer(argument);
                     data = Main().gameInstances[serverId].currentScene().dataToSend;
                     data.serverID = serverId;
-                    console.log(data.children);
                     response.end(JSON.stringify(data));
                     break;
                 case 'joinServer':

@@ -35,7 +35,6 @@ class ExternalScene
         }
     }
     render(renderEncoder) {
-        console.log("RENDERING")
         for (let childName in this.gameObjects)
         {
             this.gameObjects[childName].doRender(renderEncoder);
