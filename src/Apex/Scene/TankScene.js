@@ -11,6 +11,7 @@ class TankScene extends ExternalScene
         if (createNew) {
             data = await ResourceLoader.loadJSONResource(`/initServer/${this.playerID}`);
             this.roomID = data.serverID;
+            return false;
         } else {
             this.roomID = serverID;
             await ResourceLoader.loadJSONResource(`/joinServer/${this.roomID}/${this.playerID}`);
@@ -19,6 +20,7 @@ class TankScene extends ExternalScene
         super.Initialise(data);
 
         if (typeof codeBlock === 'function') { codeBlock(); }
+        return true;
     }
 
     async update() {

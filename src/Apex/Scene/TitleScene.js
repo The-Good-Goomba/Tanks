@@ -33,9 +33,12 @@ class TitleScene extends Scene
         this.createRoom.position = [-0.5,-0.5]
         this.createRoom.size = [0.3,0.3]
 
-        this.createRoom.pressHandler = () =>
-        {
+        this.createRoom.pressHandler = () => {
             Main.sceneManager.setScene(SceneTypes.mainGame);
+        }
+
+        this.joinRoom.pressHandler = () => {
+            Main.sceneManager.setScene(SceneTypes.joinRoom);
         }
 
 

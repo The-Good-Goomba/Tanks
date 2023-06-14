@@ -23,7 +23,15 @@ class SceneManager
                 this.#currentScene = new TitleScene();
                 if (typeof finishCode === 'function') { finishCode(); }
                 break;
+            case SceneTypes.joinRoom:
+                this.#currentScene = new JoinRoomScene();
+                break;
         }
+    }
+
+    createScene = (scene) =>
+    {
+        this.#currentScene = structureClone(scene);
     }
 
     doUpdate = async ()=> {

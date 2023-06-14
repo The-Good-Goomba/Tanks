@@ -56,5 +56,6 @@ i = 0
 const SceneTypes =
 {
     titleScene: i++,
-    mainGame: i++
+    mainGame: i++,
+    joinRoom: i++
 }
