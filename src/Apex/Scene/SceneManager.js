@@ -17,7 +17,7 @@ class SceneManager
         {
             case SceneTypes.mainGame:
                 this.#currentScene = new TankScene();
-                await this.#currentScene.Initialise(finishCode);
+                console.log(this.#currentScene.Initialise(finishCode));
                 break;
             case SceneTypes.titleScene:
                 this.#currentScene = new TitleScene();

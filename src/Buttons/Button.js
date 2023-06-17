@@ -40,7 +40,6 @@ class Button2D extends Button
         this.sprite.position[1] -= 0.01;
         this.text.position[0] -= 0.01;
         this.text.position[1] -= 0.01;
-        console.log("clicked")
         super.buttonDown();
     }
 

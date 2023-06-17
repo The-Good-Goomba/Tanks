@@ -63,6 +63,9 @@ const server = http.createServer(async (request, response) => {
                     let serverId = Math.trunc(Math.random() * 1000);
 
                     argument = fileUrl.split('/')[2];
+                    let colour = Number(fileUrl.split('/')[3]);
+                    if (isNaN(colour)) { colour = 0; }
+
                     Main().players[argument] = {serverId: serverId}; // That player is now linked to the new server;
                     Main().players[argument].input = {
                         a: false,
@@ -76,14 +79,16 @@ const server = http.createServer(async (request, response) => {
                     Main().gameInstances[serverId] = new game.SceneManager(game.SceneTypes.mainGame, serverId);
                     await Main().gameInstances[serverId].currentScene().build();
                     console.log("Started server");
-                    Main().gameInstances[serverId].addPlayer(argument);
+                    Main().gameInstances[serverId].addPlayer(argument,colour);
                     data = Main().gameInstances[serverId].currentScene().dataToSend;
                     data.serverID = serverId;
                     response.end(JSON.stringify(data));
                     break;
                 case 'joinServer':
-                    let sID = argument = fileUrl.split('/')[2];
-                    let pID = argument = fileUrl.split('/')[3];
+                    let sID = fileUrl.split('/')[2];
+                    let pID = fileUrl.split('/')[3];
+                    let amongs = Number(fileUrl.split('/')[4]);
+
                     response.setHeader('Content-Type', 'text/html');
                     if (Main().gameInstances[sID] === undefined) {
                         response.end('Not the right server');
@@ -98,8 +103,8 @@ const server = http.createServer(async (request, response) => {
                             leftMouse: false,
                             rightMouse: false,
                         }
-                        Main().gameInstances[sID].addPlayer(pID);
-                        response.end('Successfully connected');
+                        if(!Main().gameInstances[sID].addPlayer(pID, amongs)) { response.end('Colour is already taken!'); }
+                        else { response.end('Successfully connected'); }
                     }
                     break;
                 case 'getGameData':

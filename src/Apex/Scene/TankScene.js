@@ -4,25 +4,26 @@ class TankScene extends ExternalScene
 
     playerID;
     roomID;
-    async Initialise(codeBlock, createNew = true, serverID = undefined)
+    async Initialise(codeBlock, createNew = true, serverID = undefined, colour = SpriteTypes.blueTank)
     {
         let data = await ResourceLoader.loadJSONResource('/start');
         this.playerID = data.id;
         if (createNew) {
             try {
-                data = await ResourceLoader.loadJSONResource(`/initServer/${this.playerID}`);
-            } catch (error) {return false;}
+                data = await ResourceLoader.loadJSONResource(`/initServer/${this.playerID}/${colour}`);
+            } catch (error) { return `Couldn't create server!`; }
             this.roomID = data.serverID;
         } else {
             this.roomID = serverID;
-            data = await ResourceLoader.loadTextResource(`/joinServer/${this.roomID}/${this.playerID}`);;
-            if (data === 'Not the right server') { return false; }
+            data = await ResourceLoader.loadTextResource(`/joinServer/${this.roomID}/${this.playerID}/${colour}`);;
+            if (data !== 'Successfully connected') { return data; }
             data = await ResourceLoader.loadJSONResource(`/getGameData/${this.playerID}`);
         }
+        console.log(data);
         super.Initialise(data);
 
         if (typeof codeBlock === 'function') { codeBlock(); }
-        return true;
+        return 'Successfully connected';
     }
 
     async update() {

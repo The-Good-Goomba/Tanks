@@ -113,7 +113,8 @@ class ModelObject
             return;
         }
         this.#sprite = Engine.textureLibrary.getSprite(type);
-
+        this.vertexUniformValues.set(this.#sprite.pos, 64); // spritePos
+        this.vertexUniformValues.set(this.#sprite.size, 66); // spriteSize
     }
 }
 

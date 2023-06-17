@@ -122,10 +122,10 @@ class SceneManager
         return this.#currentScene
     }
 
-   addPlayer(id)
+   addPlayer(id,colour)
    {
        this.players.push(id);
-       this.#currentScene.addPlayer(id);
+       return this.#currentScene.addPlayer(id,colour);
    }
 
     setScene = (type) =>
@@ -405,7 +405,6 @@ class Scene extends Apex
 class GameObject extends Apex
 {
     id;
-    name;
     spriteType;
     modelType;
     toDestroy = false;
@@ -434,6 +433,7 @@ class GameObject extends Apex
     {
         super(name);
         this.id = Math.trunc(Math.random() * 10000);
+        if (sprite === undefined) { console.trace(); }
         this.spriteType = sprite
         this.modelType = type;
 
@@ -535,6 +535,8 @@ class TankScene extends Scene
     collidables;
     tanks = [];
     floor;
+    activeColours = [];
+
     constructor() {
         super();
         this.collidables = [];
@@ -580,13 +582,16 @@ class TankScene extends Scene
         }
     }
 
-    addPlayer(player) {
+    addPlayer(player,colour) {
+        // if (this.activeColours.includes(colour)) { return false; }
         super.addPlayer(player);
-        let tank = new ControllableTank(SpriteTypes.blueTank, player)
+
+        let tank = new ControllableTank(colour, player)
         tank.tankBody.setUniformScale(5);
         tank.setCollidables(this.collidables);
         this.addChild(tank);
         this.tanks.push(tank);
+        return true;
     }
 }
 
