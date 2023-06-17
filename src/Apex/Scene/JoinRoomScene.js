@@ -2,6 +2,7 @@
 class JoinRoomScene extends Scene
 {
     roomCode = "";
+    roomCodeText;
     joinButton;
 
 
@@ -10,8 +11,14 @@ class JoinRoomScene extends Scene
         super();
         this.joinButton = new Button2D(SpriteTypes.oak,"Join Room");
         this.joinButton.pressHandler = this.goToScene
+        this.joinButton.position = [-0.25,-0.5];
 
-        this.addButton(this.joinButton)
+        this.roomCodeText = new TextSprite();
+        this.roomCodeText.text = this.roomCode;
+        this.roomCodeText.position = [-0.25,0];
+
+        this.addText(this.roomCodeText);
+        this.addButton(this.joinButton);
 
         document.addEventListener("keydown", (event) => {
             if (!isNaN(Number(event.key))) {
@@ -20,8 +27,11 @@ class JoinRoomScene extends Scene
                 this.roomCode = this.roomCode.slice(0, -1);
             }
         });
+    }
 
-
+    doUpdate() {
+        super.doUpdate();
+        this.roomCodeText.text = this.roomCode;
     }
 
     goToScene = async () =>
@@ -30,7 +40,7 @@ class JoinRoomScene extends Scene
         if(await scn.Initialise("bruh",false, Number(this.roomCode))) {
             Main.sceneManager.createScene(scn);
         }
-        else { console.alert("Not a valid room ID"); }
+        else { alert("Not a valid room ID"); }
     }
 
 

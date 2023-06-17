@@ -34,10 +34,14 @@ class TitleScene extends Scene
         this.createRoom.size = [0.3,0.3]
 
         this.createRoom.pressHandler = () => {
+            Main.canvas.removeEventListener('mousedown', this.buttonHandler.mouseDownEvent);
+            Main.canvas.removeEventListener('mouseup', this.buttonHandler.mouseUpEvent);
             Main.sceneManager.setScene(SceneTypes.mainGame);
         }
 
         this.joinRoom.pressHandler = () => {
+            Main.canvas.removeEventListener('mousedown', this.buttonHandler.mouseDownEvent);
+            Main.canvas.removeEventListener('mouseup', this.buttonHandler.mouseUpEvent);
             Main.sceneManager.setScene(SceneTypes.joinRoom);
         }
 

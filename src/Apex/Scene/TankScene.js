@@ -15,7 +15,8 @@ class TankScene extends ExternalScene
             this.roomID = data.serverID;
         } else {
             this.roomID = serverID;
-            await ResourceLoader.loadJSONResource(`/joinServer/${this.roomID}/${this.playerID}`);
+            data = await ResourceLoader.loadTextResource(`/joinServer/${this.roomID}/${this.playerID}`);;
+            if (data === 'Not the right server') { return false; }
             data = await ResourceLoader.loadJSONResource(`/getGameData/${this.playerID}`);
         }
         super.Initialise(data);

@@ -31,7 +31,7 @@ class SceneManager
 
     createScene = (scene) =>
     {
-        this.#currentScene = structureClone(scene);
+        this.#currentScene = scene;
     }
 
     doUpdate = async ()=> {
