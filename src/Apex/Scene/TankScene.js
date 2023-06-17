@@ -15,7 +15,7 @@ class TankScene extends ExternalScene
             this.roomID = data.serverID;
         } else {
             this.roomID = serverID;
-            data = await ResourceLoader.loadTextResource(`/joinServer/${this.roomID}/${this.playerID}/${colour}`);;
+            data = await ResourceLoader.loadTextResource(`/joinServer/${this.roomID}/${this.playerID}/${colour}`);
             if (data !== 'Successfully connected') { return data; }
             data = await ResourceLoader.loadJSONResource(`/getGameData/${this.playerID}`);
         }

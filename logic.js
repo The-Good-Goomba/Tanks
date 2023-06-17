@@ -828,7 +828,6 @@ class Bullet extends GameObject
 
 
         // Collide moving in the x direction
-        let dist = [0,0];
 
         let before = [
             this.modifiedBounds.maxBounds[0] > other.modifiedBounds.minBounds[0],
@@ -850,8 +849,6 @@ class Bullet extends GameObject
             (!before[2] && after[2]), // Top
             (!before[3] && after[3]), // Bottom
         ]
-
-
 
         if (after[0] && after[1] && after[2] && after[3])
         {
