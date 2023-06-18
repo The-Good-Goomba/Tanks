@@ -583,9 +583,10 @@ class TankScene extends Scene
     }
 
     addPlayer(player,colour) {
-        // if (this.activeColours.includes(colour)) { return false; }
-        super.addPlayer(player);
+        if (this.activeColours.includes(colour)) { return false; }
+        this.activeColours.push(colour);
 
+        super.addPlayer(player);
         let tank = new ControllableTank(colour, player)
         tank.tankBody.setUniformScale(5);
         tank.setCollidables(this.collidables);
@@ -601,7 +602,8 @@ class Tank extends Apex
     rotationSpeed = 0.5;
     baseRotation = 0;
 
-    bulletInterval = 0.1;
+    bulletInterval = 0.7;
+    maxBullets = 3;
     bulletTimer = 0;
 
     velocity = [0,0];
@@ -772,7 +774,9 @@ class ControllableTank extends Tank
 
         if (this.tankBody instanceof TankBody) {
             this.updateTurretRotation();
-            if (serverJS.Main().players[this.linkedPlayer].input.leftMouse && this.bulletTimer <= 0) {
+            if (serverJS.Main().players[this.linkedPlayer].input.leftMouse
+                && this.bulletTimer <= 0
+                && this.bulletCount < this.maxBullets) {
                 this.bulletTimer = this.bulletInterval;
                 this.shoot();
             }
@@ -806,7 +810,7 @@ class ControllableTank extends Tank
 class Bullet extends GameObject
 {
     speed = 0.1;
-    initialBounces = 5;
+    initialBounces = 1;
     bouncesLeft;
     direction;
 

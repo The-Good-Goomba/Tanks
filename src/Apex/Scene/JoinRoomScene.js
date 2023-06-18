@@ -14,7 +14,6 @@ class JoinRoomScene extends Scene
     rightTank;
     leftTank;
 
-
     constructor()
     {
         super();
@@ -96,6 +95,8 @@ class JoinRoomScene extends Scene
         let scn = new TankScene();
         let sus = await scn.Initialise("bruh",false, Number(this.roomCode),this.selectedSprite);
         if(sus === 'Successfully connected') {
+            Main.canvas.removeEventListener('mousedown', this.buttonHandler.mouseDownEvent);
+            Main.canvas.removeEventListener('mouseup', this.buttonHandler.mouseUpEvent);
             Main.sceneManager.createScene(scn);
         } else {
             alert(sus);
