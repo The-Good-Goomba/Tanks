@@ -4,6 +4,7 @@ class TankScene extends ExternalScene
 
     playerID;
     roomID;
+    displayRoomID
     async Initialise(codeBlock, createNew = true, serverID = undefined, colour = SpriteTypes.blueTank)
     {
         let data = await ResourceLoader.loadJSONResource('/start');

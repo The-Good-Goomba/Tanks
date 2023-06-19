@@ -558,6 +558,13 @@ class TankScene extends Scene
     async build()
     {
         let layout = await StaticBlocks.getLayout("/src/stages.json");
+        this.parseLayout(layout[0]);
+        let stage = Math.floor(Math.random() * (layout.length - 1));
+        this.parseLayout(layout[1 + stage]);
+    }
+
+    parseLayout(layout)
+    {
         for (let element of layout)
         {
             let obj;
@@ -575,6 +582,7 @@ class TankScene extends Scene
                 case "bigBalsaBlock": obj = StaticBlocks.bigBalsaBlock(element.pos); break;
                 case "tallBalsaBlock": obj = StaticBlocks.tallBalsaBlock(element.pos); break;
                 case "longBigBlock": obj = StaticBlocks.longBigBlock(element.pos); break;
+                case "oakBlockSlab": obj = StaticBlocks.oakSlabBlock(element.pos); break;
             }
             obj.rotate(element.rotation[0],element.rotation[1],element.rotation[2]);
             this.addChild(obj);
@@ -1031,6 +1039,14 @@ class StaticBlocks
     {
         let block = new GameObject("Long Big Block", ModelTypes.block2x4, SpriteTypes.oak)
         block.setPosition(...pos);
+        return block
+    }
+
+    static oakSlabBlock(pos)
+    {
+        let block = new GameObject("Balsa Block", ModelTypes.block2x2, SpriteTypes.balsa)
+        block.setPosition(...pos);
+        block.setUniformScale(0.5);
         return block
     }
 
