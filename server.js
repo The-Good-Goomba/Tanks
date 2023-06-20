@@ -6,7 +6,7 @@ const game = require('./logic');
 // const hostname = os.networkInterfaces().en0[1].address;
 // const hostname = '127.0.0.1';
 const hostname = '0.0.0.0';
-const port = 3000;
+const port = 8031;
 
 var Main = function () {
     "use strict";

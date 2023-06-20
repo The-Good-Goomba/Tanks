@@ -433,7 +433,6 @@ class GameObject extends Apex
     {
         super(name);
         this.id = Math.trunc(Math.random() * 10000);
-        if (sprite === undefined) { console.trace(); }
         this.spriteType = sprite
         this.modelType = type;
 
@@ -583,10 +582,14 @@ class TankScene extends Scene
                 case "tallBalsaBlock": obj = StaticBlocks.tallBalsaBlock(element.pos); break;
                 case "longBigBlock": obj = StaticBlocks.longBigBlock(element.pos); break;
                 case "oakBlockSlab": obj = StaticBlocks.oakSlabBlock(element.pos); break;
+                case "corkBlock": obj = [new Cork(element.pos)]; break;
             }
-            obj.rotate(element.rotation[0],element.rotation[1],element.rotation[2]);
-            this.addChild(obj);
-            this.collidables.push(obj);
+            for(let sus of obj)
+            {
+                sus.rotate(element.rotation[0],element.rotation[1],element.rotation[2]);
+                this.addChild(sus);
+                this.collidables.push(sus);
+            }
         }
     }
 
@@ -610,7 +613,7 @@ class Tank extends Apex
     rotationSpeed = 0.5;
     baseRotation = 0;
 
-    bulletInterval = 0.7;
+    bulletInterval = 0.2;
     maxBullets = 3;
     bulletTimer = 0;
 
@@ -921,8 +924,10 @@ class Cork extends GameObject
         if (this.#hp <= 0) { this.#toBreak = true; }
     }
 
-    constructor() {
+    constructor(pos = [0,0,0]) {
         super("Cork", ModelTypes.block2x2, SpriteTypes.cork);
+        this.setPosition(...pos);
+        this.setUniformScale(0.5);
     }
 }
 
@@ -950,7 +955,7 @@ class StaticBlocks
         let block = new GameObject("Spruce Block", ModelTypes.block2x2, SpriteTypes.spruce)
         block.setPosition(...pos);
         block.setUniformScale(0.5);
-        return block
+        return [block]
     }
 
     static oakBlock(pos)
@@ -959,7 +964,7 @@ class StaticBlocks
         block.setPosition(...pos);
         block.setUniformScale(0.5);
 
-        return block
+        return [block]
     }
 
     static balsaBlock(pos)
@@ -967,35 +972,35 @@ class StaticBlocks
         let block = new GameObject("Balsa Block", ModelTypes.block2x2, SpriteTypes.balsa)
         block.setPosition(...pos);
         block.setUniformScale(0.5);
-        return block
+        return [block]
     }
 
     static oakTriangleBlock(pos)
     {
         let block = new GameObject("Oak Triangle Block", ModelTypes.triangle, SpriteTypes.oak)
         block.setPosition(...pos);
-        return block
+        return [block]
     }
 
     static balsaTriangleBlock(pos)
     {
         let block = new GameObject("Triangle Block", ModelTypes.triangle, SpriteTypes.balsa)
         block.setPosition(...pos);
-        return block
+        return [block]
     }
 
     static oakHalfCylinder(pos)
     {
         let block = new GameObject("Cylinder", ModelTypes.halfCylinder, SpriteTypes.oak)
         block.setPosition(...pos);
-        return block
+        return [block]
     }
 
     static balsaHalfCylinder(pos)
     {
         let block = new GameObject("Cylinder", ModelTypes.halfCylinder, SpriteTypes.balsa)
         block.setPosition(...pos);
-        return block
+        return [block]
     }
 
     static shortBlock(pos)
@@ -1003,28 +1008,28 @@ class StaticBlocks
         let block = new GameObject("Short Block", ModelTypes.block2x1, SpriteTypes.oak)
         block.setPosition(...pos);
         block.setUniformScale(0.5);
-        return block
+        return [block]
     }
 
     static bigShortBalsa(pos)
     {
         let block = new GameObject("Short Block", ModelTypes.block2x1, SpriteTypes.balsa)
         block.setPosition(...pos);
-        return block
+        return [block]
     }
 
     static bigOakBlock(pos)
     {
         let block = new GameObject("Big Oak Block", ModelTypes.block2x2, SpriteTypes.oak)
         block.setPosition(...pos);
-        return block
+        return [block]
     }
 
     static bigBalsaBlock(pos)
     {
         let block = new GameObject("Big Balsa Block", ModelTypes.block2x2, SpriteTypes.balsa)
         block.setPosition(...pos);
-        return block
+        return [block]
     }
 
     static tallBalsaBlock(pos)
@@ -1032,22 +1037,25 @@ class StaticBlocks
         let block = new GameObject("Tall Balsa Block", ModelTypes.block2x1, SpriteTypes.balsa)
         block.setPosition(...pos);
         block.rotate(Math.PI * 0.5,0,0);
-        return block
+        return [block]
     }
 
     static longBigBlock(pos)
     {
         let block = new GameObject("Long Big Block", ModelTypes.block2x4, SpriteTypes.oak)
         block.setPosition(...pos);
-        return block
+        return [block];
     }
 
     static oakSlabBlock(pos)
     {
-        let block = new GameObject("Balsa Block", ModelTypes.block2x2, SpriteTypes.balsa)
-        block.setPosition(...pos);
-        block.setUniformScale(0.5);
-        return block
+        let block1 = new GameObject("Balsa Block", ModelTypes.block2x1, SpriteTypes.balsa)
+        block1.setPosition(...pos);
+        block1.setUniformScale(0.5);
+        let block2 = new GameObject("Oak Block", ModelTypes.block2x2, SpriteTypes.oak)
+        block2.setPosition(pos[0],pos[1] + 0.75,pos[2]);
+        block2.setUniformScale(0.5);
+        return [block1,block2];
     }
 
     static async getLayout(filename)
