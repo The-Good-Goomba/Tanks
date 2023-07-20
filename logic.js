@@ -476,7 +476,7 @@ class BoundingBox {
             vec3.transformMat4(bruh,vertex,matrix);
             BoundingBox.updateBounds(out.minBounds,out.maxBounds,bruh);
         }
-        return out;
+        return new BoundingBox(out.minBounds,out.maxBounds);
     }
 
     updateBaseVertices()
@@ -499,6 +499,8 @@ class BoundingBox {
         this.minBounds = min;
         this.maxBounds = max;
     }
+
+    get dimensions() { return [this.width,this.height,this.depth] }
 
     get width() { return this.maxBounds[0] - this.minBounds[0]; }
     get height() { return this.maxBounds[1] - this.minBounds[1]; }
@@ -583,6 +585,7 @@ class TankScene extends Scene
                 case "longBigBlock": obj = StaticBlocks.longBigBlock(element.pos); break;
                 case "oakBlockSlab": obj = StaticBlocks.oakSlabBlock(element.pos); break;
                 case "corkBlock": obj = [new Cork(element.pos)]; break;
+                case "hole": obj = [new Hole(element.pos)]; break;
             }
             for(let sus of obj)
             {
@@ -596,10 +599,26 @@ class TankScene extends Scene
     addPlayer(player,colour) {
         if (this.activeColours.includes(colour)) { return false; }
         this.activeColours.push(colour);
-
         super.addPlayer(player);
+
         let tank = new ControllableTank(colour, player)
-        tank.tankBody.setUniformScale(5);
+        tank.tankBody.setUniformScale(4.3);
+
+        switch (this.activeColours.length) {
+            case 1:
+                tank.tankBody.setPosition(5,0,-5);
+                break;
+            case 2:
+                tank.tankBody.setPosition(-5,0,5);
+                break;
+            case 3:
+                tank.tankBody.setPosition(5,0,5);
+                break;
+            case 4:
+                tank.tankBody.setPosition(-5,0,-5);
+                break;
+        }
+
         tank.setCollidables(this.collidables);
         this.addChild(tank);
         this.tanks.push(tank);
@@ -652,7 +671,8 @@ class Tank extends Apex
             this.velocity = Meth.multiply2x1(Meth.normalise2(this.velocity), this.speed);
             for (let block of this.collidables)
             {
-                if (block !== this.tankBody && !(block instanceof Bullet)) { this.collideWithOther(block); }
+                if (block !== this.tankBody && !(block instanceof Bullet) && !(block instanceof Hole)) { this.collideWithOther(block); }
+                else if (block instanceof Hole) { if(this.tankOverHole(block)) {this.tankBody.dead = true; } }
             }
 
             if (Meth.magnitude(this.velocity) !== 0) {
@@ -678,16 +698,27 @@ class Tank extends Apex
             while (o < this.collidables.length)
             {
                 let collidable = this.collidables[o];
-                if ((collidable !== this.tankBody || bullet.bouncesLeft !== bullet.initialBounces) && (bullet !== collidable))
+                if ((collidable !== this.tankBody || bullet.bouncesLeft !== bullet.initialBounces)
+                    && (bullet !== collidable) && !(collidable instanceof Hole))
                 {
                     if (bullet.collideWithBlock(collidable,vel)) {
                         if (collidable instanceof Bullet) { collidable.toDestroy = true; bullet.toDestroy = true; }
-                        else if (collidable instanceof TankBody) { collidable.dead = true; bullet.toDestroy = true; }
+                        else if (collidable instanceof TankBody) {
+                            collidable.dead = true;
+                            bullet.toDestroy = true;
+                            this.collidables.splice( this.collidables.indexOf(collidable), 1);
+                            o--;
+                        }
+                        else if (collidable instanceof Cork) {
+                            collidable.health -= 1;
+                            if (collidable.toBreak) {
+                                this.collidables.splice(this.collidables.indexOf(collidable), 1);
+                            }
+                        }
                     }
                 }
-                if (collidable.dead) {
-                    this.collidables.splice( this.collidables.indexOf(collidable), 1);
-                } else { o++; }
+                o++
+
 
             }
             bullet.move(vel[0],0,vel[1]);
@@ -745,7 +776,16 @@ class Tank extends Apex
         if (up) { this.velocity[1] = 0.0 }
 
     }
+    tankOverHole(hole)
+    {
+        let p = hole.modifiedBounds.minBounds;
+        let s = hole.modifiedBounds.dimensions;
 
+        return (this.tankBody.getPositionX() > p[0] &&
+            this.tankBody.getPositionX() < p[0] + s[0] &&
+            this.tankBody.getPositionZ() < p[2] + s[2] &&
+            this.tankBody.getPositionZ() > p[2]);
+    }
 
 }
 
@@ -916,12 +956,12 @@ class Bullet extends GameObject
 class Cork extends GameObject
 {
     #hp = 3;
-    #toBreak = false;
+    toBreak = false;
 
     get health() { return this.#hp; }
     set health(val) {
         this.#hp = val;
-        if (this.#hp <= 0) { this.#toBreak = true; }
+        if (this.#hp <= 0) { this.toBreak = true; }
     }
 
     constructor(pos = [0,0,0]) {
@@ -935,7 +975,8 @@ class Hole extends GameObject
 {
     constructor(pos) {
         super("Hole", ModelTypes.plane, SpriteTypes.hole);
-        this.setPosition(pos[0],0.01, pos[1]);
+        this.setPosition(pos[0],0.01, pos[2]);
+        this.setUniformScale(0.5);
     }
 }
 
@@ -943,7 +984,7 @@ class Cross extends GameObject
 {
     constructor(pos) {
         super("Cross", ModelTypes.plane, SpriteTypes.whiteCross);
-        this.setPosition(pos[0],0.01, pos[2]);
+        this.setPosition(pos[0],0.011, pos[2]);
         this.setUniformScale(0.7);
     }
 }

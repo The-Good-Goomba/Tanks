@@ -44,7 +44,7 @@ fn vertex_main(vIn: Vertex) -> RasterizerData
     var norm = vertexUniforms.jointMatrices[vIn.group] * vec4f(vIn.normal, 1.0);
     var normalMat = mat3x3f(vertexUniforms.mNormal[0].xyz, vertexUniforms.mNormal[1].xyz, vertexUniforms.mNormal[2].xyz);
     output.normal = normalMat * norm.xyz;
-    output.texCoords = vIn.texCoords * vertexUniforms.spriteInfo.size + vertexUniforms.spriteInfo.pos;
+    output.texCoords = vec2f(vIn.texCoords.x,1 - vIn.texCoords.y) * vertexUniforms.spriteInfo.size + vertexUniforms.spriteInfo.pos;
     output.worldPos = (vertexUniforms.mModel * vertexUniforms.jointMatrices[vIn.group] * vec4f(vIn.position, 1.0)).xyz;
     return output;
 }
@@ -63,14 +63,14 @@ struct FragmentUniforms
 @fragment
 fn fragment_main(fragData: RasterizerData) -> @location(0) vec4f
 {
-    var baseColour: vec3f = textureSample(texture, textureSampler, fragData.texCoords).xyz;
+    var baseColour: vec4f = textureSample(texture, textureSampler, fragData.texCoords).xyzw;
     var diffuseColour = vec3f(0.0, 0.0, 0.0);
 
     var normalDir = normalize(fragData.normal);
     var lightDir = normalize(fragUniforms.lightPos - fragData.worldPos);
 
     var diffuse = max(dot(normalDir, lightDir), 0.65);
-    diffuseColour += baseColour * diffuse;
-
+    diffuseColour += baseColour.xyz * diffuse;
+    if (baseColour.w <= 0.2) { discard; }
     return vec4f(diffuseColour,1.0);
 }
