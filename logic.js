@@ -625,7 +625,7 @@ class TankScene extends Scene
         this.floor.scaleF(5,0,1);
         this.floor.setPosition(0,0,0);
 
-        this.sus = new Object2D(SpriteTypes.shell);
+        this.sus = new TextSprite();
 
         this.addChild(this.sus);
         this.addChild(this.floor);
