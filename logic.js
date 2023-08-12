@@ -112,8 +112,8 @@ class SceneManager
 
     constructor(type, id)
     {
-        this.setScene(type)
         this.sceneID = id;
+        this.setScene(type)
         this.#currentScene.sceneID = id;
     }
 
@@ -380,6 +380,7 @@ class Apex
 class Scene extends Apex
 {
     players = []
+    sceneID = 0;
     get dataToSend()
     {
         let data = {}
@@ -626,7 +627,9 @@ class TankScene extends Scene
         this.floor.setPosition(0,0,0);
 
         this.sus = new TextSprite();
-
+        this.sus.position = [-0.95,0.7]
+        this.sus.size = [0.3,0.4]
+        
         this.addChild(this.sus);
         this.addChild(this.floor);
 
@@ -636,10 +639,14 @@ class TankScene extends Scene
 
     async build()
     {
+        // Like the floor and walls
         let layout = await StaticBlocks.getLayout("/src/stages.json");
         this.parseLayout(layout[0]);
+        // The actual insides of it
         let stage = Math.floor(Math.random() * (layout.length - 1));
         this.parseLayout(layout[1 + stage]);
+
+        this.sus.text = this.sceneID;
     }
 
     parseLayout(layout)
