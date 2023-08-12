@@ -389,10 +389,13 @@ class Scene extends Apex
 
         let sus = (adult) => {
             for (let child of adult.children) {
-                if (child instanceof GameObject) {
+                if (child instanceof GameObject || child instanceof Object2D || child instanceof TextSprite) {
                     data.children.push(child.getSendData);
                 }
-                sus(child);
+              
+                if (child instanceof Apex) {
+                    sus(child);
+                }
             }
         };
         sus(this);
@@ -455,7 +458,78 @@ class GameObject extends Apex
         }
         data.jointMatrices = JSON.stringify(this.flattenedJointMatrices);
         data.modelMatrix = JSON.stringify(this.modelMatrix);
-        data.dimensions = 1;
+        data.objectType = 0;
+
+        return data;
+    }
+
+}
+
+class Object2D
+{
+    position = [0,0];
+    size = [0.5,0.5];
+    zIndex = 0.0;
+    sprite;
+    // tileAmount = [1,1];
+
+    constructor(type)
+    {
+        this.id = Math.trunc(Math.random() * 10000);
+        this.sprite = type;
+    }
+
+    get getSendData()
+    {
+        let data = {};
+        data.id = this.id;
+        data.sprite = this.sprite;
+        data.zIndex = this.zIndex;
+        data.position = this.position;
+        data.size = this.size;
+        data.objectType = 1;
+
+        return data;
+    }
+
+
+
+    move(amount)
+    {
+        this.position[0] += amount[0];
+        this.position[1] += amount[1];
+    }
+
+}
+
+class TextSprite extends Object2D
+{
+    text = "SUS";
+    font = "monospace";
+    fontSize = 48;
+    colour = "#ff0000";
+    stroke = 2;
+    strokeColour = "#000000";
+
+    constructor() {
+        super(SpriteTypes.none);
+    }
+
+    get getSendData()
+    {
+        let data = {};
+        data.id = this.id;
+        data.zIndex = this.zIndex;
+        data.position = this.position;
+        data.size = this.size;
+        data.text = this.text
+        data.font = this.font
+        data.fontSize = this.fontSize
+        data.colour = this.colour
+        data.stroke = this.stroke
+        data.strokeColour = this.strokeColour
+        data.objectType = 2;
+
 
         return data;
     }
@@ -550,6 +624,10 @@ class TankScene extends Scene
         this.floor.setUniformScale(10);
         this.floor.scaleF(5,0,1);
         this.floor.setPosition(0,0,0);
+
+        this.sus = new Object2D(SpriteTypes.shell);
+
+        this.addChild(this.sus);
         this.addChild(this.floor);
 
         // Build the borders 23 x 17
