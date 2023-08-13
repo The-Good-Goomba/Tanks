@@ -163,12 +163,18 @@ const server = http.createServer(async (request, response) => {
         })
         request.on('end', function() {
             let obj = JSON.parse(body);
-            let id = obj.playerID;
-            delete obj.playerID
-            if (id === undefined) { sendError(response); console.log(`ID is undefined`); return;}
-            Main().players[id].input = obj;
-            response.writeHead(200, {'Content-Type': 'text/html'})
-            response.end('post received')
+            if (obj.command === "postPlayerData")
+            {
+                delete obj.command;
+                let id = obj.playerID;
+                delete obj.playerID;
+                if (id === undefined) { sendError(response); console.log(`ID is undefined`); return;}
+                Main().players[id].input = obj;
+                response.writeHead(200, {'Content-Type': 'text/html'})
+                response.end('post received')
+            }
+            
+
         })
     }
 

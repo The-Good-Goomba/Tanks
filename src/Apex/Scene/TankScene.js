@@ -45,6 +45,7 @@ class TankScene extends ExternalScene
             leftMouse: Mouse.isMouseButtonDown(0) || false,
             rightMouse: Mouse.isMouseButtonDown(1) || false,
             playerID: this.playerID,
+            command: "postPlayerData"
         }
 
         fetch('/post', {

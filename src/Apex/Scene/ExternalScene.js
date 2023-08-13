@@ -112,6 +112,10 @@ class ExternalScene
             this.gameObjects[child.id].stroke = child.stroke
             this.gameObjects[child.id].strokeColour = child.strokeColour
             this.addText(this.gameObjects[child.id]);
+        } else if (child.objectType === 3) {
+            this.gameObjects[child.id] = new Button2D(child.sprite, child.text);
+            this.gameObjects[child.id].position = child.position;
+            this.gameObjects[child.id].pressHandler = this.buttonFunctions(child.command);
         }
     }
 
@@ -134,6 +138,25 @@ class ExternalScene
             this.addSprite(button.sprite);
             if (button.text) this.addText(button.text);
             this.buttonHandler.addButton(button);
+
+        }
+    }
+
+    buttonFunctions(command)
+    {
+        return () => {
+            data = {
+                playerID: this.playerID,
+                command: command
+            }
+    
+            fetch('/post', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
 
         }
     }
