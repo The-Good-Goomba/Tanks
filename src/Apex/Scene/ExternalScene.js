@@ -46,26 +46,27 @@ class ExternalScene
         for (let sus in this.gameObjects)
         {
             if (!includedID.includes(sus)) {
-                if (sus instanceof Button)
+                console.log("bruh");
+                if (this.gameObjects[sus] instanceof Button)
                 {
                     let index = this.spriteRenderer._sprites.indexOf(this.gameObjects[sus].sprite);
-                    if (index > -1) { // only splice array when item is found
-                        this.spriteRenderer._sprites.splice(index, 1); // 2nd parameter means remove one item only
+                    if (index > -1) { 
+                        this.spriteRenderer._sprites.splice(index, 1); 
                     }
                     index = this.textRenderer._sprites.indexOf(this.gameObjects[sus].text);
-                    if (index > -1) { // only splice array when item is found
-                        this.textRenderer._sprites.splice(index, 1); // 2nd parameter means remove one item only
+                    if (index > -1) { 
+                        this.textRenderer._sprites.splice(index, 1); 
                     }
                     index = this.buttonHandler._buttons.indexOf(this.gameObjects[sus]);
-                    if (index > -1) { // only splice array when item is found
-                        this.buttonHandler._buttons.splice(index, 1); // 2nd parameter means remove one item only
+                    if (index > -1) { 
+                        this.buttonHandler._buttons.splice(index, 1); 
                     }
-                } else if (sus instanceof TextSprite) {
+                } else if (this.gameObjects[sus] instanceof TextSprite) {
                     let index = this.textRenderer._sprites.indexOf(this.gameObjects[sus]);
                     if (index > -1) { // only splice array when item is found
                         this.textRenderer._sprites.splice(index, 1); // 2nd parameter means remove one item only
                     }
-                } else if (sus instanceof Object2D) {
+                } else if (this.gameObjects[sus] instanceof Object2D) {
                     let index = this.spriteRenderer._sprites.indexOf(this.gameObjects[sus]);
                     if (index > -1) { // only splice array when item is found
                         this.spriteRenderer._sprites.splice(index, 1); // 2nd parameter means remove one item only

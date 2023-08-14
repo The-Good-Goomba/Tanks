@@ -656,6 +656,7 @@ class TankScene extends Scene
     tanks = [];
     floor;
     activeColours = [];
+    started = false;
 
     constructor() {
         super();
@@ -676,6 +677,8 @@ class TankScene extends Scene
 
         this.startRoom = new Button2D(SpriteTypes.blackTank, "Start");
         this.startRoom.command = "startRoom";
+        this.startRoom.size = [0.3,0.25];
+        this.startRoom.position = [-0.15,-0.7];
 
         this.addChild(this.startRoom);
         this.addChild(this.roomCode);
@@ -761,6 +764,15 @@ class TankScene extends Scene
     parseCommand(command)
     {
         console.log(command);
+        if (command === "startRoom") { 
+            for(let tank of this.tanks)
+            {
+                tank.motionLocked = false;
+                tank.bulletTimer = 0.1;
+            }
+            this.killChild(this.children.indexOf(this.startRoom));
+        }
+
     }
 }
 
@@ -778,6 +790,7 @@ class Tank extends Apex
 
     tankBody;
     collidables;
+    motionLocked = true;
 
     get bulletCount()
     {
@@ -942,6 +955,7 @@ class ControllableTank extends Tank
 {
     screenCoords = [0,0,0];
     linkedPlayer;
+    
 
     constructor(spriteType, playerID)
     {
@@ -961,7 +975,7 @@ class ControllableTank extends Tank
     doUpdate() {
         super.doUpdate();
 
-        if (this.tankBody instanceof TankBody) {
+        if (this.tankBody instanceof TankBody && !this.motionLocked) {
             this.updateTurretRotation();
             if (serverJS.Main().players[this.linkedPlayer].input.leftMouse
                 && this.bulletTimer <= 0
