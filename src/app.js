@@ -12,6 +12,7 @@ const start = async () =>
     await importCode('/src/Libraries/ModelLibrary.js');
     await importCode('/src/Libraries/TextureLibrary.js');
     await importCode('/src/Libraries/ShaderLibrary.js');
+    await importCode('/src/Libraries/AudioManager.js');
     await importCode('/src/Apex/Apex.js');
     await importCode('/src/Apex/ModelObject.js');
     await importCode('/src/Apex/GameObject.js');

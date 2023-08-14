@@ -59,3 +59,20 @@ const SceneTypes =
     mainGame: i++,
     joinRoom: i++
 }
+
+i = 0
+const AudioTypes = 
+{
+    bigCannonFire: i++,
+    bomb: i++,
+    bombTimer: i++,
+    bulletOnWood: i++,
+    cannonFire: i++,
+    hugeBomb: i++,
+    setBomb: i++,
+    tankMove1: i++,
+    tankMove2: i++,
+    roundFailure: i++,
+    roundStart: i++,
+    variation1: i++
+}
