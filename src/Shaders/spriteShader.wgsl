@@ -28,7 +28,7 @@ fn spriteVertex_main(instance: Instance,
                      @builtin(vertex_index) vID: u32) -> RasteriserData
 {
     var rd: RasteriserData;
-    rd.position = vec4f((QUAD[vID] * instance.size + instance.pos.xy), 0.9 * sign(instance.pos.z) + instance.pos.z * 0.1, 1.0);
+    rd.position = vec4f((QUAD[vID] * instance.size + instance.pos.xy), 0.5 -  0.45 * sign(instance.pos.z) - instance.pos.z * 0.05, 1.0);
     rd.texCoords = vec2f(QUAD[vID].x,1 - QUAD[vID].y) * instance.ssSize + instance.ssPos;
     return rd;
 }

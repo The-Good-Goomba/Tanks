@@ -25,11 +25,11 @@ class Button2D extends Button
     constructor(type, word = undefined) {
         super();
         this.sprite = new Object2D(type);
-        this.sprite.zIndex = 0.2;
+        this.sprite.zIndex = 0.1;
         if (word) {
             this.text = new TextSprite();
             this.text.text = word;
-            this.text.zIndex = 0.1;
+            this.text.zIndex = 0.2;
         }
 
     }
