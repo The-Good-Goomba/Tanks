@@ -46,10 +46,37 @@ class ExternalScene
         for (let sus in this.gameObjects)
         {
             if (!includedID.includes(sus)) {
+                if (sus instanceof Button)
+                {
+                    let index = this.spriteRenderer._sprites.indexOf(this.gameObjects[sus].sprite);
+                    if (index > -1) { // only splice array when item is found
+                        this.spriteRenderer._sprites.splice(index, 1); // 2nd parameter means remove one item only
+                    }
+                    index = this.textRenderer._sprites.indexOf(this.gameObjects[sus].text);
+                    if (index > -1) { // only splice array when item is found
+                        this.textRenderer._sprites.splice(index, 1); // 2nd parameter means remove one item only
+                    }
+                    index = this.buttonHandler._buttons.indexOf(this.gameObjects[sus]);
+                    if (index > -1) { // only splice array when item is found
+                        this.buttonHandler._buttons.splice(index, 1); // 2nd parameter means remove one item only
+                    }
+                } else if (sus instanceof TextSprite) {
+                    let index = this.textRenderer._sprites.indexOf(this.gameObjects[sus]);
+                    if (index > -1) { // only splice array when item is found
+                        this.textRenderer._sprites.splice(index, 1); // 2nd parameter means remove one item only
+                    }
+                } else if (sus instanceof Object2D) {
+                    let index = this.spriteRenderer._sprites.indexOf(this.gameObjects[sus]);
+                    if (index > -1) { // only splice array when item is found
+                        this.spriteRenderer._sprites.splice(index, 1); // 2nd parameter means remove one item only
+                    }
+                }
                 delete this.gameObjects[sus]
+               
             }
         }
     }
+
     render(renderEncoder) {
         for (let childName in this.gameObjects)
         {
@@ -59,6 +86,7 @@ class ExternalScene
         this.spriteRenderer.doRender(renderEncoder);
         this.textRenderer.doRender(renderEncoder);
     }
+
     updateChild(child)
     {
         if (child.toDestroy) {
@@ -83,8 +111,17 @@ class ExternalScene
             this.gameObjects[child.id].colour = child.colour
             this.gameObjects[child.id].stroke = child.stroke
             this.gameObjects[child.id].strokeColour = child.strokeColour
+        } else if (child.objectType === 3) {
+            this.gameObjects[child.id].text.font = child.text.font;
+            this.gameObjects[child.id].text.fontSize = child.text.fontSize;
+            this.gameObjects[child.id].text.colour = child.text.colour;
+            this.gameObjects[child.id].text.stroke = child.text.stroke;
+            this.gameObjects[child.id].text.strokeColour = child.text.strokeColour;
+            this.gameObjects[child.id].position = child.position;
+            this.gameObjects[child.id].size = child.size;
         }
     }
+
     addChild(child)
     {
         if (child.objectType === 0) {
@@ -113,9 +150,16 @@ class ExternalScene
             this.gameObjects[child.id].strokeColour = child.strokeColour
             this.addText(this.gameObjects[child.id]);
         } else if (child.objectType === 3) {
-            this.gameObjects[child.id] = new Button2D(child.sprite, child.text);
+            this.gameObjects[child.id] = new Button2D(child.sprite, child.text.text);
+            this.gameObjects[child.id].text.font = child.text.font;
+            this.gameObjects[child.id].text.fontSize = child.text.fontSize;
+            this.gameObjects[child.id].text.colour = child.text.colour;
+            this.gameObjects[child.id].text.stroke = child.text.stroke;
+            this.gameObjects[child.id].text.strokeColour = child.text.strokeColour;
             this.gameObjects[child.id].position = child.position;
+            this.gameObjects[child.id].size = child.size;
             this.gameObjects[child.id].pressHandler = this.buttonFunctions(child.command);
+            this.addButton(this.gameObjects[child.id]);
         }
     }
 
@@ -145,7 +189,7 @@ class ExternalScene
     buttonFunctions(command)
     {
         return () => {
-            data = {
+            let data = {
                 playerID: this.playerID,
                 command: command
             }
@@ -157,7 +201,6 @@ class ExternalScene
                 },
                 body: JSON.stringify(data)
             })
-
         }
     }
 

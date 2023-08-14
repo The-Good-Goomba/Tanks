@@ -172,8 +172,12 @@ const server = http.createServer(async (request, response) => {
                 Main().players[id].input = obj;
                 response.writeHead(200, {'Content-Type': 'text/html'})
                 response.end('post received')
+            } else {
+                Main().gameInstances[Main().players[obj.playerID].serverId].passCommand(obj.command)
+                response.writeHead(200, {'Content-Type': 'text/html'})
+                response.end('post received')
             }
-            
+
 
         })
     }

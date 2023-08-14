@@ -34,23 +34,4 @@ class Button2D extends Button
 
     }
 
-    buttonDown()
-    {
-        this.sprite.position[0] -= 0.01;
-        this.sprite.position[1] -= 0.01;
-        this.text.position[0] -= 0.01;
-        this.text.position[1] -= 0.01;
-        super.buttonDown();
-    }
-
-    buttonUp (clicked)
-    {
-        this.sprite.position[0] += 0.01;
-        this.sprite.position[1] += 0.01;
-        this.text.position[0] += 0.01;
-        this.text.position[1] += 0.01;
-        super.buttonUp(clicked);
-    }
-
-
 }

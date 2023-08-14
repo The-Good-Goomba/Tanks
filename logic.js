@@ -139,6 +139,11 @@ class SceneManager
 
     doUpdate = ()=> { this.#currentScene.update() }
 
+    passCommand = (command) => 
+    {
+        this.#currentScene.parseCommand(command);
+    }
+
 }
 
 class ModelLibrary
@@ -390,7 +395,7 @@ class Scene extends Apex
 
         let sus = (adult) => {
             for (let child of adult.children) {
-                if (child instanceof GameObject || child instanceof Object2D || child instanceof TextSprite) {
+                if (child instanceof GameObject || child instanceof Object2D || child instanceof TextSprite || child instanceof Button2D) {
                     data.children.push(child.getSendData);
                 }
               
@@ -404,6 +409,8 @@ class Scene extends Apex
     }
 
     addPlayer(player) { this.players.push(player); }
+
+    parseCommand(command) { }
 }
 
 class GameObject extends Apex
@@ -493,8 +500,6 @@ class Object2D
         return data;
     }
 
-
-
     move(amount)
     {
         this.position[0] += amount[0];
@@ -531,6 +536,45 @@ class TextSprite extends Object2D
         data.strokeColour = this.strokeColour
         data.objectType = 2;
 
+
+        return data;
+    }
+
+}
+
+class Button2D
+{
+    sprite;
+    text;
+    command;
+    position = [0,0];
+    size = [0.5,0.5];
+
+    constructor(type, word = undefined) {
+        this.id = Math.trunc(Math.random() * 10000);
+        this.sprite = type;
+        if (word) {
+            this.text = new TextSprite();
+            this.text.text = word;
+        }
+    }
+
+    get getSendData()
+    {
+        let data = {};
+        data.sprite = this.sprite;
+        data.text = {};
+        data.text.text = this.text.text;
+        data.text.font = this.text.font;
+        data.text.fontSize = this.text.fontSize;
+        data.text.colour = this.text.colour;
+        data.text.stroke = this.text.stroke;
+        data.text.strokeColour = this.text.strokeColour;
+        data.id = this.id;
+        data.position = this.position;
+        data.size = this.size;
+        data.command = this.command;
+        data.objectType = 3;
 
         return data;
     }
@@ -626,11 +670,15 @@ class TankScene extends Scene
         this.floor.scaleF(5,0,1);
         this.floor.setPosition(0,0,0);
 
-        this.sus = new TextSprite();
-        this.sus.position = [-0.95,0.7]
-        this.sus.size = [0.3,0.4]
-        
-        this.addChild(this.sus);
+        this.roomCode = new TextSprite();
+        this.roomCode.position = [-0.95,0.7];
+        this.roomCode.size = [0.3,0.4];
+
+        this.startRoom = new Button2D(SpriteTypes.blackTank, "Start");
+        this.startRoom.command = "startRoom";
+
+        this.addChild(this.startRoom);
+        this.addChild(this.roomCode);
         this.addChild(this.floor);
 
         // Build the borders 23 x 17
@@ -646,7 +694,7 @@ class TankScene extends Scene
         let stage = Math.floor(Math.random() * (layout.length - 1));
         this.parseLayout(layout[1 + stage]);
 
-        this.sus.text = this.sceneID;
+        this.roomCode.text = this.sceneID;
     }
 
     parseLayout(layout)
@@ -708,6 +756,11 @@ class TankScene extends Scene
         this.addChild(tank);
         this.tanks.push(tank);
         return true;
+    }
+
+    parseCommand(command)
+    {
+        console.log(command);
     }
 }
 
