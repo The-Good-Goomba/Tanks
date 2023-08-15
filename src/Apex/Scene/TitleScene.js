@@ -6,6 +6,7 @@ class TitleScene extends Scene
     title;
     joinRoom;
     createRoom;
+    playingMusic = false;
 
 
     constructor() {
@@ -57,6 +58,12 @@ class TitleScene extends Scene
         super.doUpdate();
         this.tank.rotate(0,0.01,0);
         this.tank.setPositionY(Math.sin(Main.totalGameTime) * 0.5 - 5);
+
+        if (AudioManager.canPlay && !this.playingMusic)
+        {
+            AudioManager.playOnce(AudioTypes.variation1);
+            this.playingMusic = true;
+        }
 
     }
 }

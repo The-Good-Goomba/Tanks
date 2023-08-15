@@ -52,10 +52,17 @@ class Main
 
         Main.colourFormat = navigator.gpu.getPreferredCanvasFormat();
 
+        AudioManager.Initialise();
         Keyboard.Initialise();
         Mouse.Initialise();
 
         await Engine.Initialise();
+
+        document.addEventListener('click', musicPlay);
+        function musicPlay() {
+            AudioManager.canPlay = true;
+            document.removeEventListener('click', musicPlay);
+        }
 
         Main.sceneManager = new SceneManager(SceneTypes.titleScene, Main.RunApp);
     };

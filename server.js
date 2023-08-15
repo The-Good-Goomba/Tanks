@@ -150,6 +150,12 @@ const server = http.createServer(async (request, response) => {
         } else if (fileExt === 'json') {
             response.setHeader('Content-Type', 'application/json');
             fs.createReadStream(fileUrl).pipe(response);
+        } else if (fileExt === 'mp3') {
+            response.setHeader('Content-Type', 'audio/mpeg');
+            fs.createReadStream(fileUrl).pipe(response);
+        } else if (fileExt === 'wav') {
+            response.setHeader('Content-Type', 'audio/wav');
+            fs.createReadStream(fileUrl).pipe(response);
         }
         else { sendError(response); }
 

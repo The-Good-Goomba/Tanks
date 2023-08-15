@@ -2,35 +2,38 @@
 
 class AudioManager
 {
-    #library = {}
+    static #library = {}
+    static canPlay = false
 
-    constructor()
+    static Initialise()
     {
-        this.#library[AudioTypes.bigCannonFire] = "BigCannonFire.wav"
-        this.#library[AudioTypes.bomb] = "Bomb.wav"
-        this.#library[AudioTypes.bombTimer] = "BombTimer.wav"
-        this.#library[AudioTypes.bulletOnWood] = "BulletOnWood.wav"
-        this.#library[AudioTypes.cannonFire] = "CannonFire.wav"
-        this.#library[AudioTypes.setBomb] = "SetBomb.wav"
-        this.#library[AudioTypes.tankMove1] = "TankMove1.wav"
-        this.#library[AudioTypes.tankMove2] = "TankMove2.wav"
-        this.#library[AudioTypes.roundFailure] = "RoundFailure.mp3"
-        this.#library[AudioTypes.roundStart] = "RoundStart.mp3"
-        this.#library[AudioTypes.variation1] = "Variation1.mp3"
+        AudioManager.#library[AudioTypes.bigCannonFire] = "BigCannonFire.wav"
+        AudioManager.#library[AudioTypes.bomb] = "Bomb.wav"
+        AudioManager.#library[AudioTypes.bombTimer] = "BombTimer.wav"
+        AudioManager.#library[AudioTypes.bulletOnWood] = "BulletOnWood.wav"
+        AudioManager.#library[AudioTypes.cannonFire] = "CannonFire.wav"
+        AudioManager.#library[AudioTypes.setBomb] = "SetBomb.wav"
+        AudioManager.#library[AudioTypes.tankMove1] = "TankMove1.wav"
+        AudioManager.#library[AudioTypes.tankMove2] = "TankMove2.wav"
+        AudioManager.#library[AudioTypes.roundFailure] = "RoundFailure.mp3"
+        AudioManager.#library[AudioTypes.roundStart] = "RoundStart.mp3"
+        AudioManager.#library[AudioTypes.variation1] = "Variation1.mp3"
+
     }
+
     
-    play(sound)
+    static playOnce(sound)
     {
-        return new Promise((resolve) => {
-            let audio = document.createElement('audio');
-            audio.src = `/src/Assets/Sound/${this.#library[sound]}`
-            audio.autoplay = true;
-            audio.addEventListener("ended", function(){
-                audio.currentTime = 0;
-                resolve();
-           });
-            document.head.appendChild(audio);
-        })
+        if (!AudioManager.canPlay) { return; }
+        let audio = document.createElement('audio');
+        audio.src = `/src/Assets/Sound/${AudioManager.#library[sound]}`
+        audio.autoplay = true;
+        // audio.controls = true;
+        audio.addEventListener("ended", function(){
+            audio.currentTime = 0;
+            document.body.removeChild(audio);
+        });
+        document.body.appendChild(audio);
     }
 
 }
