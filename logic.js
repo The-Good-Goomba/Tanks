@@ -103,6 +103,23 @@ const SceneTypes =
     mainGame: i++
 }
 
+i = 0
+const AudioTypes = 
+{
+    bigCannonFire: i++,
+    bomb: i++,
+    bombTimer: i++,
+    bulletOnWood: i++,
+    cannonFire: i++,
+    hugeBomb: i++,
+    setBomb: i++,
+    tankMove1: i++,
+    tankMove2: i++,
+    roundFailure: i++,
+    roundStart: i++,
+    variation1: i++
+}
+
 class SceneManager
 {
     #currentScene;
@@ -306,7 +323,7 @@ class Apex
                 child.projectionMatrix = this.projectionMatrix;
                 child.serverID = this.serverID;
                 child.update()
-            }
+            } 
         }
     }
 
@@ -395,7 +412,12 @@ class Scene extends Apex
 
         let sus = (adult) => {
             for (let child of adult.children) {
-                if (child instanceof GameObject || child instanceof Object2D || child instanceof TextSprite || child instanceof Button2D) {
+                if (child instanceof GameObject || 
+                    child instanceof Object2D || 
+                    child instanceof TextSprite || 
+                    child instanceof Button2D || 
+                    child instanceof Audio1 ||
+                    child instanceof Audio2) {
                     data.children.push(child.getSendData);
                 }
               
@@ -578,6 +600,33 @@ class Button2D
 
         return data;
     }
+
+}
+
+// This is audio that just plays once
+class Audio1
+{
+    audioType;
+    played = false;
+
+    constructor(type)
+    {
+        this.audioType = type
+    }
+
+    get getSendData()
+    {
+        let data = {}
+        data.objectType = 4;
+        data.audioType = this.audioType;
+        this.played = true;
+        return data;
+    }
+}
+
+// This is audio that plays continuosly unless specified
+class Audio2
+{
 
 }
 
@@ -792,10 +841,7 @@ class Tank extends Apex
     collidables;
     motionLocked = true;
 
-    get bulletCount()
-    {
-        return this.children.length - 1;
-    }
+    bulletCount = 0;
 
     constructor(spriteType)
     {
@@ -843,6 +889,7 @@ class Tank extends Apex
         let o = 0;
         while (i < this.children.length)
         {
+            if (!(this.children[i] instanceof Bullet)) { continue; }
             let bullet = this.children[i];
             let vel = Meth.multiply2x1(bullet.direction, bullet.speed);
             o = 0;
@@ -892,6 +939,7 @@ class Tank extends Apex
         bullet.setUniformScale(this.tankBody.getScale()[0] * 0.007);
         this.addChild(bullet);
         this.collidables.push(bullet);
+        this.addChild(new Audio1(AudioTypes.cannonFire));
     }
 
     moveUp() {
@@ -936,6 +984,18 @@ class Tank extends Apex
             this.tankBody.getPositionX() < p[0] + s[0] &&
             this.tankBody.getPositionZ() < p[2] + s[2] &&
             this.tankBody.getPositionZ() > p[2]);
+    }
+    
+    addChild(child)
+    {
+        if (child instanceof Bullet) { this.bulletCount += 1; }
+        super.addChild(child);
+    }
+
+    killChild(child)
+    {
+        if (child instanceof Bullet) { this.bulletCount -= 1; }
+        super.killChild(child);
     }
 
 }

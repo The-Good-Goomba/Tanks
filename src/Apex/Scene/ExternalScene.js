@@ -29,6 +29,14 @@ class ExternalScene
         let includedID = []
         for (let child of children)
         {
+            // Single play audio
+            if (child.objectType === 4) 
+            {
+                AudioManager.playOnce(child.audioType);
+                continue;
+            }
+
+
             if (this.gameObjects[child.id] === undefined) {
                 this.addChild(child)
             } else { this.updateChild(child); }
