@@ -36,7 +36,6 @@ class ExternalScene
                 continue;
             }
 
-
             if (this.gameObjects[child.id] === undefined) {
                 this.addChild(child)
             } else { this.updateChild(child); }
@@ -80,8 +79,7 @@ class ExternalScene
                         this.spriteRenderer._sprites.splice(index, 1); // 2nd parameter means remove one item only
                     }
                 }
-                delete this.gameObjects[sus]
-               
+                delete this.gameObjects[sus];
             }
         }
     }

@@ -416,9 +416,13 @@ class Scene extends Apex
                     child instanceof Object2D || 
                     child instanceof TextSprite || 
                     child instanceof Button2D || 
-                    child instanceof Audio1 ||
                     child instanceof Audio2) {
                     data.children.push(child.getSendData);
+                }
+
+                if (child instanceof Audio1) {
+                    data.children.push(child.getSendData);
+                    adult.killChild(adult.children.indexOf(child));
                 }
               
                 if (child instanceof Apex) {
@@ -607,7 +611,6 @@ class Button2D
 class Audio1
 {
     audioType;
-    played = false;
 
     constructor(type)
     {
@@ -619,7 +622,6 @@ class Audio1
         let data = {}
         data.objectType = 4;
         data.audioType = this.audioType;
-        this.played = true;
         return data;
     }
 }
@@ -889,7 +891,7 @@ class Tank extends Apex
         let o = 0;
         while (i < this.children.length)
         {
-            if (!(this.children[i] instanceof Bullet)) { continue; }
+            if (!(this.children[i] instanceof Bullet)) { i++; continue; }
             let bullet = this.children[i];
             let vel = Meth.multiply2x1(bullet.direction, bullet.speed);
             o = 0;
@@ -900,18 +902,29 @@ class Tank extends Apex
                     && (bullet !== collidable) && !(collidable instanceof Hole))
                 {
                     if (bullet.collideWithBlock(collidable,vel)) {
-                        if (collidable instanceof Bullet) { collidable.toDestroy = true; bullet.toDestroy = true; }
+                        
+                        if (collidable instanceof Bullet) { 
+                            collidable.toDestroy = true; 
+                            bullet.toDestroy = true; 
+                            this.addChild(new Audio1(AudioTypes.bulletOnWood));
+                        }
                         else if (collidable instanceof TankBody) {
                             collidable.dead = true;
                             bullet.toDestroy = true;
                             this.collidables.splice( this.collidables.indexOf(collidable), 1);
                             o--;
+                            this.addChild(new Audio1(AudioTypes.bomb));
                         }
                         else if (collidable instanceof Cork) {
                             collidable.health -= 1;
                             if (collidable.toBreak) {
                                 this.collidables.splice(this.collidables.indexOf(collidable), 1);
                             }
+                            this.addChild(new Audio1(AudioTypes.bulletOnWood));
+                        } 
+                        if (!bullet.toDestroy)
+                        {
+                            this.addChild(new Audio1(AudioTypes.bulletOnWood));
                         }
                     }
                 }
@@ -992,10 +1005,10 @@ class Tank extends Apex
         super.addChild(child);
     }
 
-    killChild(child)
+    killChild(index)
     {
-        if (child instanceof Bullet) { this.bulletCount -= 1; }
-        super.killChild(child);
+        if (this.children[index] instanceof Bullet) { this.bulletCount -= 1; }
+        super.killChild(index);
     }
 
 }
