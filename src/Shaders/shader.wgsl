@@ -54,7 +54,8 @@ struct FragmentUniforms
 {
     // Fragment
     lightPos: vec3f,
-    lightColour: vec3f
+    lightColour: vec3f,
+    opacity: f32
 }
 
 @group(0) @binding(1) var<uniform> fragUniforms: FragmentUniforms;
@@ -72,6 +73,5 @@ fn fragment_main(fragData: RasterizerData) -> @location(0) vec4f
 
     var diffuse = max(dot(normalDir, lightDir), 0.65);
     diffuseColour += baseColour.xyz * diffuse;
-    if (baseColour.w <= 0.2) { discard; }
-    return vec4f(diffuseColour,1.0);
+    return vec4f(diffuseColour,baseColour.w * fragUniforms.opacity);
 }

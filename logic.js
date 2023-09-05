@@ -80,21 +80,22 @@ const SpriteTypes = {
     redCross: i++,
 
     hole: i++,
+    smoke: i++
 
 }
 
 i = 0;
 const ModelTypes =
-    {
-        tank: i++,
-        plane: i++,
-        shell: i++,
-        block2x2: i++,
-        block2x1: i++,
-        triangle: i++,
-        halfCylinder: i++,
-        block2x4: i++,
-    }
+{
+    tank: i++,
+    plane: i++,
+    shell: i++,
+    block2x2: i++,
+    block2x1: i++,
+    triangle: i++,
+    halfCylinder: i++,
+    block2x4: i++,
+}
 
 i = 0
 const SceneTypes =
@@ -424,6 +425,13 @@ class Scene extends Apex
                     data.children.push(child.getSendData);
                     adult.killChild(adult.children.indexOf(child));
                 }
+                if (child instanceof SmokeTrail)
+                {
+                    data.children.push(child.getSendData);
+                    if (child.killSelf) {
+                        adult.killChild(adult.children.indexOf(child));
+                    }
+                }
               
                 if (child instanceof Apex) {
                     sus(child);
@@ -446,6 +454,7 @@ class GameObject extends Apex
     modelType;
     toDestroy = false;
     firstSend = true;
+    opacity = 1.0;
 
     boundingBox;
     get modifiedBounds()
@@ -493,6 +502,7 @@ class GameObject extends Apex
         data.jointMatrices = JSON.stringify(this.flattenedJointMatrices);
         data.modelMatrix = JSON.stringify(this.modelMatrix);
         data.objectType = 0;
+        data.opacity = this.opacity
 
         return data;
     }
@@ -893,6 +903,11 @@ class Tank extends Apex
         {
             if (!(this.children[i] instanceof Bullet)) { i++; continue; }
             let bullet = this.children[i];
+            if (bullet.smokeTimer >= 10) {
+                this.addChild(new SmokeTrail(bullet.getPosition()));
+                bullet.smokeTimer = 0;
+            }
+
             let vel = Meth.multiply2x1(bullet.direction, bullet.speed);
             o = 0;
             while (o < this.collidables.length)
@@ -915,13 +930,6 @@ class Tank extends Apex
                             o--;
                             this.addChild(new Audio1(AudioTypes.bomb));
                         }
-                        else if (collidable instanceof Cork) {
-                            collidable.health -= 1;
-                            if (collidable.toBreak) {
-                                this.collidables.splice(this.collidables.indexOf(collidable), 1);
-                            }
-                            this.addChild(new Audio1(AudioTypes.bulletOnWood));
-                        } 
                         if (!bullet.toDestroy)
                         {
                             this.addChild(new Audio1(AudioTypes.bulletOnWood));
@@ -1089,6 +1097,7 @@ class Bullet extends GameObject
     initialBounces = 1;
     bouncesLeft;
     direction;
+    smokeTimer = 0;
 
     screenCoords = [0,0];
 
@@ -1174,20 +1183,15 @@ class Bullet extends GameObject
         {
             this.toDestroy = true;
         }
+        this.smokeTimer += 1
+
     }
 
 }
 
 class Cork extends GameObject
 {
-    #hp = 3;
     toBreak = false;
-
-    get health() { return this.#hp; }
-    set health(val) {
-        this.#hp = val;
-        if (this.#hp <= 0) { this.toBreak = true; }
-    }
 
     constructor(pos = [0,0,0]) {
         super("Cork", ModelTypes.block2x2, SpriteTypes.cork);
@@ -1330,6 +1334,39 @@ class StaticBlocks
         return JSON.parse(body);
     }
 
+}
+
+class Explosion extends GameObject
+{
+    animationStep = 0;
+
+    constructor()
+    {
+        super("Explosion",ModelTypes.block2x1, )
+    }
+}
+
+class SmokeTrail extends GameObject
+{
+    animationStep = 0;
+    killSelf = false;
+
+    constructor(pos) {
+        super("SmokeTrail", ModelTypes.plane, SpriteTypes.smoke);
+        this.setPosition(...pos);
+        this.setUniformScale(0.3);
+    }
+
+    doUpdate() {
+        this.animationStep += serverJS.Main().deltaTime();
+        if (this.animationStep > Math.PI * 0.6)
+        {
+            this.killSelf = true;
+        }
+        this.opacity -= 0.05;
+        this.opacity = Math.round((this.opacity + Number.EPSILON) * 100) / 100
+        this.setUniformScale(0.3 + 0.4 * Math.sin(this.animationStep * 0.4));
+    }
 }
 
 var Engine =  function () {

@@ -40,6 +40,5 @@ fn spriteVertex_main(instance: Instance,
 fn spriteFragment_main(rd: RasteriserData) -> @location(0) vec4f
 {
     let sus = textureSample(texture, textureSampler, rd.texCoords);
-    if (sus.w <= 0.2) { discard; }
     return sus;
 }

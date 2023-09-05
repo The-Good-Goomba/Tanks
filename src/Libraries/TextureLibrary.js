@@ -40,6 +40,7 @@ class TextureLibrary
             this.#spriteLib[SpriteTypes.redCross] = { textureType: TextureTypes.bigSheet, pos: [42,1241], size: [64,64]};
 
             this.#spriteLib[SpriteTypes.hole] = { textureType: TextureTypes.bigSheet, pos: [143,1172], size: [64,64]};
+            this.#spriteLib[SpriteTypes.smoke] = { textureType: TextureTypes.bigSheet, pos: [281,1039], size: [64,64]};
 
             for (var i = 0; i < this.#spriteLib.length; i++)
             {

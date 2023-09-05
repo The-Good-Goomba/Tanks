@@ -36,6 +36,7 @@ const SpriteTypes = {
     redCross: i++,
 
     hole: i++,
+    smoke: i++
 
 }
 

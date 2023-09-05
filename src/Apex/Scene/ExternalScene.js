@@ -136,6 +136,8 @@ class ExternalScene
             this.gameObjects[child.id] = new ModelObject(child.model,child.sprite);
             this.gameObjects[child.id].modelMatrix = ExternalScene.decodeFloat32Array(child.modelMatrix);
             this.gameObjects[child.id].jointMatrices = ExternalScene.decodeFloat32Array(child.jointMatrices) ?? mat4.create();
+            this.gameObjects[child.id].opacity = child.opacity;
+
         } else if (child.objectType === 1) {
             // 2D sprite
             this.gameObjects[child.id] = new Object2D(child.sprite);

@@ -109,7 +109,19 @@ class ShaderLibrary
                 module: this.#module[frag.code],
                 entryPoint: frag.func,
                 targets: [{
-                    format: navigator.gpu.getPreferredCanvasFormat()
+                    format: navigator.gpu.getPreferredCanvasFormat(),
+                    blend: {
+                        color: {
+                            operation: 'add',
+                            srcFactor: 'one',
+                            dstFactor: 'one-minus-src-alpha'
+                        },
+                        alpha: {
+                            operation: 'add',
+                            srcFactor: 'one',
+                            dstFactor: 'one-minus-src-alpha'
+                        }
+                    }
                 }]
             },
             primitive: {

@@ -11,6 +11,7 @@ class ModelObject
 
     viewMatrix;
     projectionMatrix;
+    opacity = 1.0;
 
     jointMatrices;
     #renderPipeline;
@@ -59,6 +60,7 @@ class ModelObject
         this.fragmentUniformValues = [];
         this.fragmentUniformValues.push(...[0.0,10.0,0.0,0.0]); // LightPos
         this.fragmentUniformValues.push(...[0.0,0.0,0.0]); // lightColour
+        this.fragmentUniformValues.push(this.opacity);
 
         Main.device.queue.writeBuffer(this.vertexUniformBuffer, 0, this.vertexUniformValues);
         Main.device.queue.writeBuffer(this.fragmentUniformBuffer, 0, new Float32Array(this.fragmentUniformValues));
@@ -88,6 +90,10 @@ class ModelObject
         this.vertexUniformValues.set(this.projectionMatrix, 48); // mProjection
         this.vertexUniformValues.set(this.jointMatrices, 68); // jointMatrices Array
         Main.device.queue.writeBuffer(this.vertexUniformBuffer, 0,this.vertexUniformValues);
+        if (this.opacity != 1) {console.log(this.opacity);}
+        this.fragmentUniformValues.pop();
+        this.fragmentUniformValues.push(this.opacity);
+        Main.device.queue.writeBuffer(this.fragmentUniformBuffer, 0, new Float32Array(this.fragmentUniformValues));
     }
 
 
