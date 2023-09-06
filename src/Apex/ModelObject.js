@@ -90,7 +90,6 @@ class ModelObject
         this.vertexUniformValues.set(this.projectionMatrix, 48); // mProjection
         this.vertexUniformValues.set(this.jointMatrices, 68); // jointMatrices Array
         Main.device.queue.writeBuffer(this.vertexUniformBuffer, 0,this.vertexUniformValues);
-        if (this.opacity != 1) {console.log(this.opacity);}
         this.fragmentUniformValues.pop();
         this.fragmentUniformValues.push(this.opacity);
         Main.device.queue.writeBuffer(this.fragmentUniformBuffer, 0, new Float32Array(this.fragmentUniformValues));

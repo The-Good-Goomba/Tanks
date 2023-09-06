@@ -432,7 +432,7 @@ class Scene extends Apex
                         adult.killChild(adult.children.indexOf(child));
                     }
                 }
-              
+                
                 if (child instanceof Apex) {
                     sus(child);
                 }
@@ -1363,8 +1363,10 @@ class SmokeTrail extends GameObject
         {
             this.killSelf = true;
         }
-        this.opacity -= 0.05;
-        this.opacity = Math.round((this.opacity + Number.EPSILON) * 100) / 100
+        if (this.opacity <= 0) { this.opacity = 0; }
+        else {
+            this.opacity -= 0.01;
+        }
         this.setUniformScale(0.3 + 0.4 * Math.sin(this.animationStep * 0.4));
     }
 }
