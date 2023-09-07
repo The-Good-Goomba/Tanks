@@ -74,6 +74,34 @@ const VertexDescriptorTypes = {
 
 }
 
+const FragmentDescriptorTypes = {
+    Opaque: {
+        module: this.#module[frag.code],
+        entryPoint: frag.func,
+        targets: [{
+            format: navigator.gpu.getPreferredCanvasFormat(),
+        }]
+    },
+    Translucent: {
+        module: this.#module[frag.code],
+        entryPoint: frag.func,
+        targets: [{
+            format: navigator.gpu.getPreferredCanvasFormat(),
+            blend: {
+                color: {
+                    operation: 'add',
+                    srcFactor: 'one',
+                    dstFactor: 'one-minus-src-alpha'
+                },
+                alpha: {
+                    operation: 'add',
+                    srcFactor: 'one',
+                    dstFactor: 'one-minus-src-alpha'
+                }
+            }
+        }]
+    } 
+}
 
 
 class ShaderLibrary
@@ -95,7 +123,7 @@ class ShaderLibrary
         });
     }
 
-    createProgram(vert, frag, vertexDescriptor)
+    createProgram(vert, frag, vertexDescriptor, fragmentDescriptor = FragmentDescriptorTypes.Opaque)
     {
 
         // Maybe add depth stencil?
@@ -105,25 +133,7 @@ class ShaderLibrary
                 entryPoint: vert.func,
                 buffers: vertexDescriptor
             },
-            fragment: {
-                module: this.#module[frag.code],
-                entryPoint: frag.func,
-                targets: [{
-                    format: navigator.gpu.getPreferredCanvasFormat(),
-                    blend: {
-                        color: {
-                            operation: 'add',
-                            srcFactor: 'one',
-                            dstFactor: 'one-minus-src-alpha'
-                        },
-                        alpha: {
-                            operation: 'add',
-                            srcFactor: 'one',
-                            dstFactor: 'one-minus-src-alpha'
-                        }
-                    }
-                }]
-            },
+            fragment: fragmentDescriptor,
             primitive: {
                 topology: 'triangle-list',
                 cullMode: 'back',

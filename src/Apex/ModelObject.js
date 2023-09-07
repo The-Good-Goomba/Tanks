@@ -12,7 +12,7 @@ class ModelObject
     viewMatrix;
     projectionMatrix;
     opacity = 1.0;
-
+   
     jointMatrices;
     #renderPipeline;
     #sprite;
@@ -26,11 +26,17 @@ class ModelObject
     fragmentUniformValues;
     fragmentUniformBuffer;
 
-    constructor(type, sprite)
+    constructor(type, sprite, opaque = true)
     {
         this.#sprite = Engine.textureLibrary.getSprite(sprite);
-        this.#renderPipeline = Engine.shaderLibrary.createProgram(VertexShaderTypes.default,
+        if (opaque)
+        {
+            this.#renderPipeline = Engine.shaderLibrary.createProgram(VertexShaderTypes.default,
             FragmentShaderTypes.default, VertexDescriptorTypes.Basic);
+        } else {
+            this.#renderPipeline = Engine.shaderLibrary.createProgram(VertexShaderTypes.default,
+                FragmentShaderTypes.default, VertexDescriptorTypes.Basic, FragmentDescriptorTypes.Translucent);
+        }
 
         this.mesh = Engine.modelLibrary.get(type);
 
