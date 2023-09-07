@@ -74,33 +74,20 @@ const VertexDescriptorTypes = {
 
 }
 
-const FragmentDescriptorTypes = {
-    Opaque: {
-        module: this.#module[frag.code],
-        entryPoint: frag.func,
-        targets: [{
-            format: navigator.gpu.getPreferredCanvasFormat(),
-        }]
-    },
+const BlendMode = {
+    Opaque: undefined,
     Translucent: {
-        module: this.#module[frag.code],
-        entryPoint: frag.func,
-        targets: [{
-            format: navigator.gpu.getPreferredCanvasFormat(),
-            blend: {
-                color: {
-                    operation: 'add',
-                    srcFactor: 'one',
-                    dstFactor: 'one-minus-src-alpha'
-                },
-                alpha: {
-                    operation: 'add',
-                    srcFactor: 'one',
-                    dstFactor: 'one-minus-src-alpha'
-                }
-            }
-        }]
-    } 
+        color: {
+            operation: 'add',
+            srcFactor: 'one',
+            dstFactor: 'one-minus-src-alpha'
+        },
+        alpha: {
+            operation: 'add',
+            srcFactor: 'one',
+            dstFactor: 'one-minus-src-alpha'
+        }
+    }
 }
 
 
@@ -123,7 +110,7 @@ class ShaderLibrary
         });
     }
 
-    createProgram(vert, frag, vertexDescriptor, fragmentDescriptor = FragmentDescriptorTypes.Opaque)
+    createProgram(vert, frag, vertexDescriptor, blendMode = BlendMode.Opaque)
     {
 
         // Maybe add depth stencil?
@@ -133,7 +120,14 @@ class ShaderLibrary
                 entryPoint: vert.func,
                 buffers: vertexDescriptor
             },
-            fragment: fragmentDescriptor,
+            fragment: {
+                module: this.#module[frag.code],
+                entryPoint: frag.func,
+                targets: [{
+                    format: Main.colourFormat,
+                    blend: blendMode
+                }]
+            },
             primitive: {
                 topology: 'triangle-list',
                 cullMode: 'back',

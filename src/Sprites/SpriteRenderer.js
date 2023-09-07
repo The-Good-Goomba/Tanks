@@ -31,7 +31,7 @@ class SpriteRenderer
         // This is already done in the parser, and probably is worse, because we transform more vertices
 
         this.renderPipeline = Engine.shaderLibrary.createProgram(VertexShaderTypes.sprite,
-            FragmentShaderTypes.sprite, VertexDescriptorTypes.Sprite, FragmentDescriptorTypes.Translucent);
+            FragmentShaderTypes.sprite, VertexDescriptorTypes.Sprite, BlendMode.Translucent);
 
         this.sampler = Main.device.createSampler({
             magFilter: 'linear',

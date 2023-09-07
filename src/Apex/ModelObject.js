@@ -35,7 +35,7 @@ class ModelObject
             FragmentShaderTypes.default, VertexDescriptorTypes.Basic);
         } else {
             this.#renderPipeline = Engine.shaderLibrary.createProgram(VertexShaderTypes.default,
-                FragmentShaderTypes.default, VertexDescriptorTypes.Basic, FragmentDescriptorTypes.Translucent);
+                FragmentShaderTypes.default, VertexDescriptorTypes.Basic, BlendMode.Translucent);
         }
 
         this.mesh = Engine.modelLibrary.get(type);

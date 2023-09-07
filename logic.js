@@ -455,6 +455,7 @@ class GameObject extends Apex
     toDestroy = false;
     firstSend = true;
     opacity = 1.0;
+    opaque = true;
 
     boundingBox;
     get modifiedBounds()
@@ -502,7 +503,10 @@ class GameObject extends Apex
         data.jointMatrices = JSON.stringify(this.flattenedJointMatrices);
         data.modelMatrix = JSON.stringify(this.modelMatrix);
         data.objectType = 0;
-        data.opacity = this.opacity
+        data.opaque = this.opaque;
+        if (!this.opaque) {
+            data.opacity = this.opacity;
+        }
 
         return data;
     }
@@ -1206,6 +1210,7 @@ class Hole extends GameObject
         super("Hole", ModelTypes.plane, SpriteTypes.hole);
         this.setPosition(pos[0],0.01, pos[2]);
         this.setUniformScale(0.5);
+        this.opaque = false;
     }
 }
 
@@ -1355,6 +1360,8 @@ class SmokeTrail extends GameObject
         super("SmokeTrail", ModelTypes.plane, SpriteTypes.smoke);
         this.setPosition(...pos);
         this.setUniformScale(0.3);
+        // this.setRotationX(0.01);
+        this.opaque = false;
     }
 
     doUpdate() {
